@@ -1,0 +1,67 @@
+  GSUI.MyForm.resources - Embedded, ContainedInManifestFile, 
+ImageRuntimeVersion: v4.0.30319
+Assembly GS_UI, Version=0.0.*, Culture=Invariant Language (Invariant Country): 
+	hash=SHA1, flags=PublicKey
+Assembly mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089: 
+	hash=None, flags=None
+Assembly System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089: 
+	hash=None, flags=None
+Assembly System.DirectoryServices, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a: 
+	hash=None, flags=None
+Assembly System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089: 
+	hash=None, flags=None
+Assembly System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a: 
+	hash=None, flags=None
+Assembly System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089: 
+	hash=None, flags=None
+Assembly System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089: 
+	hash=None, flags=None
+Class GSUI.MyForm: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
+  :System.Windows.Forms.Form
+    Void .ctor(): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
+  Fields:
+    System.Windows.Forms.RichTextBox richTextBox_output : Public
+  Methods:
+    log(basic_string<char\,std::char_traits<char>\,std::allocator<char> >*): PrivateScope, Public, HideBySig
+    logErr(basic_string<char\,std::char_traits<char>\,std::allocator<char> >*): PrivateScope, Public, HideBySig
+    clearOutput(): PrivateScope, Public, HideBySig
+    checkIfFileExists(basic_string<char\,std::char_traits<char>\,std::allocator<char> >*): PrivateScope, Public, HideBySig
+    getFileSize(basic_string<char\,std::char_traits<char>\,std::allocator<char> >*): PrivateScope, Public, HideBySig
+    retrieveFileToTransfer(vector<unsigned char\,std::allocator<unsigned char> >*, basic_string<char\,std::char_traits<char>\,std::allocator<char> >*): PrivateScope, Public, HideBySig
+    splitFileIntoPackets(vector<std::vector<unsigned char\,std::allocator<unsigned char> >\,std::allocator<std::vector<unsigned char\,std::allocator<unsigned char> > > >*, vector<unsigned char\,std::allocator<unsigned char> >*): PrivateScope, Public, HideBySig
+    compilePackets(basic_string<char\,std::char_traits<char>\,std::allocator<char> >*, vector<std::vector<unsigned char\,std::allocator<unsigned char> >\,std::allocator<std::vector<unsigned char\,std::allocator<unsigned char> > > >*): PrivateScope, Public, HideBySig
+    splitSixteenBitInt(vector<unsigned char\,std::allocator<unsigned char> >*, UInt16): PrivateScope, Public, HideBySig
+    splitThirtyTwoBitInt(vector<unsigned char\,std::allocator<unsigned char> >*, UInt32): PrivateScope, Public, HideBySig
+    insertSixteenBitIntInEightBitVector(vector<unsigned char\,std::allocator<unsigned char> >* IsImplicitlyDereferenced, _Vector_iterator<std::_Vector_val<std::_Simple_types<unsigned char> > >, UInt16): PrivateScope, Public, HideBySig
+    insertThirtyTwoBitIntInEightBitVector(vector<unsigned char\,std::allocator<unsigned char> >* IsImplicitlyDereferenced, _Vector_iterator<std::_Vector_val<std::_Simple_types<unsigned char> > >, UInt32): PrivateScope, Public, HideBySig
+    makeSixteenBitInt(vector<unsigned char\,std::allocator<unsigned char> >*): PrivateScope, Public, HideBySig
+    makeThirtyTwoBitInt(vector<unsigned char\,std::allocator<unsigned char> >*): PrivateScope, Public, HideBySig
+    getSixteenBitIntFromEightBitVector(vector<unsigned char\,std::allocator<unsigned char> >* IsImplicitlyDereferenced, Int32): PrivateScope, Public, HideBySig
+    getThirtyTwoBitIntFromEightBitVector(vector<unsigned char\,std::allocator<unsigned char> >* IsImplicitlyDereferenced, Int32): PrivateScope, Public, HideBySig
+    vectorToHexString(basic_string<char\,std::char_traits<char>\,std::allocator<char> >*, vector<unsigned char\,std::allocator<unsigned char> >* IsImplicitlyDereferenced): PrivateScope, Public, HideBySig
+    integerToHexString(basic_string<char\,std::char_traits<char>\,std::allocator<char> >*, UInt32, Int32): PrivateScope, Public, HideBySig
+    incrementFrameIDCountXB(): PrivateScope, Public, HideBySig
+    ChecksumCalculator(vector<unsigned char\,std::allocator<unsigned char> >* IsImplicitlyDereferenced): PrivateScope, Public, HideBySig
+    FrameConstructorXB(vector<unsigned char\,std::allocator<unsigned char> >* IsImplicitlyDereferenced): PrivateScope, Public, HideBySig
+    checkReceivedPacketForFramesXB(vector<std::vector<unsigned char\,std::allocator<unsigned char> >\,std::allocator<std::vector<unsigned char\,std::allocator<unsigned char> > > >*, vector<unsigned char\,std::allocator<unsigned char> >* IsImplicitlyDereferenced): PrivateScope, Public, HideBySig
+    processReceivedPacketXB(vector<unsigned char\,std::allocator<unsigned char> >* IsImplicitlyDereferenced): PrivateScope, Public, HideBySig
+    isRFPacketHighPriority(vector<unsigned char\,std::allocator<unsigned char> >*): PrivateScope, Public, HideBySig
+    resendHighPriorityFrames(): PrivateScope, Public, HideBySig
+    removeFrameFromSentFrames(vector<unsigned char\,std::allocator<unsigned char> >*, vector<unsigned char\,std::allocator<unsigned char> >* IsImplicitlyDereferenced): PrivateScope, Public, HideBySig
+    sendFrameXB(vector<unsigned char\,std::allocator<unsigned char> >* IsImplicitlyDereferenced, Int32): PrivateScope, Public, HideBySig
+    sendRFPacketXB(vector<unsigned char\,std::allocator<unsigned char> >*, UInt16, vector<unsigned char\,std::allocator<unsigned char> >* IsImplicitlyDereferenced): PrivateScope, Public, HideBySig
+    initializeFileTransfer(FileTransfer*, Boolean(HasFieldMarshal), vector<unsigned char\,std::allocator<unsigned char> >* IsImplicitlyDereferenced): PrivateScope, Public, HideBySig
+    transferComplete(UInt16, vector<unsigned char\,std::allocator<unsigned char> >*, UInt16): PrivateScope, Public, HideBySig
+    getPacket(vector<unsigned char\,std::allocator<unsigned char> >*, FileTransfer*, UInt32): PrivateScope, Public, HideBySig
+    getInitializationPacket(vector<unsigned char\,std::allocator<unsigned char> >*, FileTransfer*): PrivateScope, Public, HideBySig
+    addPacket(FileTransfer*, vector<unsigned char\,std::allocator<unsigned char> >* IsImplicitlyDereferenced): PrivateScope, Public, HideBySig
+    allowUplinkTransferToContinue(Byte): PrivateScope, Public, HideBySig
+    sendRFPacket(vector<unsigned char\,std::allocator<unsigned char> >*, UInt16, vector<unsigned char\,std::allocator<unsigned char> >* IsImplicitlyDereferenced): PrivateScope, Public, HideBySig
+    uplinkTransfer(vector<unsigned char\,std::allocator<unsigned char> >*, UInt16, UInt16, DoWorkEventArgs): PrivateScope, Public, HideBySig
+    downlinkPartRequestTransfer(vector<unsigned char\,std::allocator<unsigned char> >*, UInt16, UInt16, DoWorkEventArgs): PrivateScope, Public, HideBySig
+    processIncomingPayload(vector<unsigned char\,std::allocator<unsigned char> >*, UInt16, vector<unsigned char\,std::allocator<unsigned char> >* IsImplicitlyDereferenced): PrivateScope, Public, HideBySig
+    transferOutPacketsConstruction(vector<std::vector<unsigned char\,std::allocator<unsigned char> >\,std::allocator<std::vector<unsigned char\,std::allocator<unsigned char> > > >*, UInt16, basic_string<char\,std::char_traits<char>\,std::allocator<char> >*, vector<unsigned char\,std::allocator<unsigned char> >* IsImplicitlyDereferenced): PrivateScope, Public, HideBySig
+    cancelIncomingTransfer(UInt16): PrivateScope, Public, HideBySig
+    newOutgoingTransfer(vector<unsigned char\,std::allocator<unsigned char> >*, UInt16, basic_string<char\,std::char_traits<char>\,std::allocator<char> >*): PrivateScope, Public, HideBySig
+    cancelOutgoingTransfer(UInt16): PrivateScope, Public, HideBySig
+    cancelAllTransfers(): PrivateScope, Public, HideBySig
