@@ -135,22 +135,39 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="IncomingTransfer.cpp" />
     <ClCompile Include="MyForm.cpp" />
+    <ClCompile Include="AboutDialog.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bitManipulation.h" />
     <ClInclude Include="CommunicationsHandler.h" />
     <ClInclude Include="fileOperations.h" />
     <ClInclude Include="fileTransferClass.h" />
+    <ClInclude Include="IncomingTransfer.h">
+      <FileType>CppForm</FileType>
+    </ClInclude>
     <ClInclude Include="Logger.h" />
+    <ClInclude Include="MainFormForwardDeclaration.h">
+      <FileType>CppClass</FileType>
+    </ClInclude>
     <ClInclude Include="MyForm.h">
+      <FileType>CppForm</FileType>
+    </ClInclude>
+    <ClInclude Include="AboutDialog.h">
       <FileType>CppForm</FileType>
     </ClInclude>
     <ClInclude Include="XBeeCommunication.h" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="IncomingTransfer.resx">
+      <DependentUpon>IncomingTransfer.h</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="MyForm.resx">
       <DependentUpon>MyForm.h</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="AboutDialog.resx">
+      <DependentUpon>AboutDialog.h</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

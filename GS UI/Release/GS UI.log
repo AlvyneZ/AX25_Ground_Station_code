@@ -1,6 +1,11 @@
-﻿  MyForm.cpp
-c:\users\alvynez\desktop\naspuon code\ground station code\gs ui\gs ui\logger.h(20): warning C4996: 'localtime': This function or variable may be unsafe. Consider using localtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+﻿  IncomingTransfer.cpp
+  MyForm.cpp
+c:\users\alvynez\desktop\nanosatellite project uon\2021\naspuon code\ground station code\gs ui\gs ui\myform.h(112): warning C4677: 'transferForms': signature of non-private member contains assembly private type 'cliext::map<uint16_t,GSUI::IncomingTransfer ^>'
+  c:\users\alvynez\desktop\nanosatellite project uon\2021\naspuon code\ground station code\gs ui\gs ui\myform.h(112): note: see declaration of 'cliext::map<uint16_t,GSUI::IncomingTransfer ^>'
+c:\users\alvynez\desktop\nanosatellite project uon\2021\naspuon code\ground station code\gs ui\gs ui\logger.h(20): warning C4996: 'localtime': This function or variable may be unsafe. Consider using localtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\time.h(506): note: see declaration of 'localtime'
-c:\users\alvynez\desktop\naspuon code\ground station code\gs ui\gs ui\xbeecommunication.h(406): warning C4018: '<': signed/unsigned mismatch
-  .NETFramework,Version=v4.6.1.AssemblyAttributes.cpp
-  GS UI.vcxproj -> C:\Users\AlvyneZ\Desktop\NaSPUoN code\Ground Station Code\GS UI\Release\GS_UI.exe
+c:\users\alvynez\desktop\nanosatellite project uon\2021\naspuon code\ground station code\gs ui\gs ui\xbeecommunication.h(428): warning C4018: '<': signed/unsigned mismatch
+c:\users\alvynez\desktop\nanosatellite project uon\2021\naspuon code\ground station code\gs ui\gs ui\communicationshandler.h(594): warning C4996: 'localtime': This function or variable may be unsafe. Consider using localtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\time.h(506): note: see declaration of 'localtime'
+  Generating Code...
+  GS UI.vcxproj -> C:\Users\AlvyneZ\Desktop\NanoSatellite Project UoN\2021\NaSPUoN code\Ground Station Code\GS UI\Release\GS_UI.exe

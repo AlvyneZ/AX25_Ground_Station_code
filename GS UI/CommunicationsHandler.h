@@ -38,6 +38,10 @@
 	  Housekeeping Data request		-> HK
 	  Log File Move					-> LM
 
+	Date/Time:
+	  Request Date and Time			-> DR
+	  Save Date and Time			-> DS
+
 */
 
 
@@ -45,17 +49,10 @@
 
 
 
-namespace CommsNaSPUoN
-{
-	//Variables to hold all file transfers {Note: they should be deleted upon completion of the transfer}
-	std::map<uint16_t, FileTransfer > outgoingTransfers;
-	std::map<uint16_t, FileTransfer > incomingTransfers;
-
-	//For the threads (Uplink & downlink part request) to know when to send the next rf packet
-	std::map<uint8_t, bool> uplinkSendNext;
-}
 
 void GSUI::MyForm::addPacket(FileTransfer * ft, std::vector<uint8_t> & packet) {
+	if (packet.size() < 8) //To avoid accessing outside vector size
+		return;
 	if ((packet[0] == 'T') && (packet[1] == 'D')) {
 		uint16_t tID = getSixteenBitIntFromEightBitVector(packet, 2);
 		if (tID == ft->transferID) {
@@ -63,9 +60,14 @@ void GSUI::MyForm::addPacket(FileTransfer * ft, std::vector<uint8_t> & packet) {
 			packet.erase(packet.begin(), packet.begin() + 8);
 			if (pckIndex < ft->expectedPackets) {
 				ft->packets[pckIndex] = packet;
+				if (!ft->receivedPacket[pckIndex]) {
+					ft->packetsReceived++;
+					array<uint16_t>^ args = gcnew array<uint16_t>(2);
+					args[0] = (ft->packetsReceived * 100) / ft->expectedPackets;
+					args[1] = tID;
+					downlinkProgressBarUpdate(args);
+				}
 				ft->receivedPacket[pckIndex] = true;
-				ft->packetsReceived++;
-				downlinkProgressBarUpdate((ft->packetsReceived * 100) / ft->expectedPackets);
 			}
 			else {
 				logErr("CommHndl -> Packet index larger or equal to expected packets. tID:" + std::to_string(tID));
@@ -109,7 +111,10 @@ bool GSUI::MyForm::transferComplete(uint16_t tID, std::vector<uint8_t> XBsixtyFo
 		CommsNaSPUoN::incomingTransfers[tID].fileName[2] = '\\'; //Since the sat(Linux) uses forward-slashes but windows uses back-slashes
 		outputPath += CommsNaSPUoN::incomingTransfers[tID].fileName;
 		compilePackets(outputPath, CommsNaSPUoN::incomingTransfers[tID].packets);
-		downlinkProgressBarUpdate(100);
+		array<uint16_t>^ args = gcnew array<uint16_t>(2);
+		args[0] = 100;
+		args[1] = tID;
+		downlinkProgressBarUpdate(args);
 		return true;
 	}
 	else {
@@ -138,8 +143,12 @@ bool GSUI::MyForm::transferComplete(uint16_t tID, std::vector<uint8_t> XBsixtyFo
 FileTransfer GSUI::MyForm::initializeFileTransfer(bool incoming, std::vector<uint8_t> & initializerPacket) {
 	FileTransfer ft;
 	ft.ready = false;
+	if (initializerPacket.size() < 4) //To avoid accessing outside vector size
+		return ft;
 	if (incoming) {
 		if ((initializerPacket[0] == 'T') && (initializerPacket[1] == 'I')) {
+			if (initializerPacket.size() < 12) //To avoid accessing outside vector size
+				return ft;
 			ft.transferID = getSixteenBitIntFromEightBitVector(initializerPacket, 2);
 			ft.packetsReceived = 0x00000000;
 			ft.fileSize = getThirtyTwoBitIntFromEightBitVector(initializerPacket, 4);
@@ -303,239 +312,308 @@ void GSUI::MyForm::downlinkPartRequestTransfer(std::vector<uint8_t> XBsixtyFourB
 }
 
 void GSUI::MyForm::processIncomingPayload(std::vector<uint8_t> XBsixtyFourBitAddress, uint16_t XBsixteenBitAddress, std::vector<uint8_t> & payload) {
-	if (payload[0] == 'T') {
-		if (payload[1] == 'R') {
-			//Request to transfer a file or part of a file
-			if (payload[2] == 0x00) {
-				//Transfer full file
-				FileTransfer newFileTransfer = initializeFileTransfer(false, payload);
+	try {
+		//To prevent the receive thread closing because of an error in processing a payload
+		if (payload.size() < 2) //To avoid accessing outside vector size
+			return;
+		if (payload[0] == 'T') {
+			if (payload[1] == 'R') {
+				//Request to transfer a file or part of a file
+				if (payload.size() < 3) //To avoid accessing outside vector size
+					return;
+				if (payload[2] == 0x00) {
+					//Transfer full file
+					FileTransfer newFileTransfer = initializeFileTransfer(false, payload);
+
+					if (newFileTransfer.ready) {
+						CommsNaSPUoN::outgoingTransfers[newFileTransfer.transferID] = newFileTransfer;
+						sendRFPacket(XBsixtyFourBitAddress, XBsixteenBitAddress, getInitializationPacket(&newFileTransfer));
+						log("CommHndl -> Transfer request received and accepted.");
+					}
+				}
+				else if (payload[2] == 0x03) {
+					//Packet count that was successfully received
+					uint16_t tID = getSixteenBitIntFromEightBitVector(payload, 3);
+
+					if (CommsNaSPUoN::outgoingTransfers.count(tID)) {
+						uint32_t received = getThirtyTwoBitIntFromEightBitVector(payload, 5);
+						uplinkProgressBarUpdate((received * 100) / CommsNaSPUoN::outgoingTransfers[tID].expectedPackets);
+					}
+					else {
+						logErr("CommHndl -> Invalid progress report for transfer for non-existent tID " + std::to_string(tID) + ".");
+					}
+				}
+				else if (payload[2] == 0x0F) {
+					//Transfer part of a file
+					if (payload.size() < 9) //To avoid accessing outside vector size
+						return;
+					uint16_t tID = getSixteenBitIntFromEightBitVector(payload, 3);
+
+					if (CommsNaSPUoN::outgoingTransfers.count(tID)) {
+						uint32_t pckIndex = getThirtyTwoBitIntFromEightBitVector(payload, 5);
+						sendRFPacket(XBsixtyFourBitAddress, XBsixteenBitAddress, getPacket(&(CommsNaSPUoN::outgoingTransfers[tID]), pckIndex));
+					}
+					else {
+						logErr("CommHndl -> Invalid Request for a packet transfer for non-existent tID " + std::to_string(tID) + ".");
+					}
+				}
+				else {
+					logErr("CommHndl -> Invalid Request for a packet transfer, wrong bit options: " + std::to_string(payload[2]) + ".");
+				}
+			}
+			else if (payload[1] == 'I') {
+				//Transfer Initialization
+				if (payload.size() < 4) //To avoid accessing outside vector size
+					return;
+				uint16_t tID = getSixteenBitIntFromEightBitVector(payload, 2);
+				FileTransfer newFileTransfer = initializeFileTransfer(true, payload);
+
+				std::vector<uint8_t> pck;
+
+				pck.push_back('T');
+				pck.push_back('B');
+
+				insertSixteenBitIntInEightBitVector(pck, pck.end(), tID);
 
 				if (newFileTransfer.ready) {
-					CommsNaSPUoN::outgoingTransfers[newFileTransfer.transferID] = newFileTransfer;
-					sendRFPacket(XBsixtyFourBitAddress, XBsixteenBitAddress, getInitializationPacket(&newFileTransfer));
-					log("CommHndl -> Transfer request received and accepted.");
-				}
-			}
-			else if (payload[2] == 0x03) {
-				//Packet count that was successfully received
-				uint16_t tID = getSixteenBitIntFromEightBitVector(payload, 3);
-
-				if (CommsNaSPUoN::outgoingTransfers.count(tID)) {
-					uint32_t received = getThirtyTwoBitIntFromEightBitVector(payload, 5);
-					uplinkProgressBarUpdate((received*100)/ CommsNaSPUoN::outgoingTransfers[tID].expectedPackets);
+					pck.push_back(0x00);
+					CommsNaSPUoN::incomingTransfers[tID] = newFileTransfer;
+					currentDownlinkTransferID = tID;
+					std::string expPcks = " Expecting " + std::to_string(newFileTransfer.expectedPackets) + " packets.";
+					log("CommHndl -> Intitializer packet for downlink transfer tID: " + std::to_string(tID) + " accepted." + expPcks);
+					downlinkStarting(tID);
 				}
 				else {
-					logErr("CommHndl -> Invalid progress report for transfer for non-existent tID " + std::to_string(tID) + ".");
+					pck.push_back(0x01);
+					log("CommHndl -> Intitializer packet for downlink transfer tID: " + std::to_string(tID) + " rejected.");
 				}
-			}
-			else if (payload[2] == 0x0F) {
-				//Transfer part of a file
-				uint16_t tID = getSixteenBitIntFromEightBitVector(payload, 3);
 
-				if (CommsNaSPUoN::outgoingTransfers.count(tID)) {
-					uint32_t pckIndex = getThirtyTwoBitIntFromEightBitVector(payload, 5);
-					sendRFPacket(XBsixtyFourBitAddress, XBsixteenBitAddress, getPacket(&(CommsNaSPUoN::outgoingTransfers[tID]), pckIndex));
+				sendRFPacket(XBsixtyFourBitAddress, XBsixteenBitAddress, pck);
+			}
+			else if (payload[1] == 'B') {
+				//Request to begin transfering packets of a file
+				if (payload.size() < 5) //To avoid accessing outside vector size
+					return;
+				uint16_t tID = getSixteenBitIntFromEightBitVector(payload, 2);
+				if (payload[4] == 0x00) {
+					if (backgroundWorker_Uplink->IsBusy) {
+						backgroundWorker_Uplink->CancelAsync();
+						log("CommHndl -> Cancelled uplink thread to allow for a new uplink transfer.");
+						//Stalling to allow the thread to stop
+						System::Threading::Thread::CurrentThread->Sleep(100);
+					}
+					array<uint16_t>^ args = gcnew array<uint16_t>(6);
+					args[0] = tID;
+					args[1] = XBsixteenBitAddress;
+					std::vector<uint8_t> sixteen(2);
+					for (int i = 0; i < 4; i++) {
+						sixteen[0] = XBsixtyFourBitAddress[2 * i];
+						sixteen[1] = XBsixtyFourBitAddress[1 + (2 * i)];
+						args[2 + i] = makeSixteenBitInt(sixteen);
+					}
+
+					startBackgroundWorkerUplink(args);
 				}
 				else {
-					logErr("CommHndl -> Invalid Request for a packet transfer for non-existent tID " + std::to_string(tID) + ".");
+					if (CommsNaSPUoN::outgoingTransfers.count(tID))
+						CommsNaSPUoN::outgoingTransfers.erase(tID);
+					logErr("CommHndl -> Recepient refused transfer of tID " + std::to_string(tID) + ".");
 				}
 			}
-			else {
-				logErr("CommHndl -> Invalid Request for a packet transfer, wrong bit options: " + std::to_string(payload[2]) + ".");
-			}
-		}
-		else if (payload[1] == 'I') {
-			//Transfer Initialization
-			uint16_t tID = getSixteenBitIntFromEightBitVector(payload, 2);
-			FileTransfer newFileTransfer = initializeFileTransfer(true, payload);
-
-			std::vector<uint8_t> pck;
-
-			pck.push_back('T');
-			pck.push_back('B');
-
-			insertSixteenBitIntInEightBitVector(pck, pck.end(), tID);
-
-			if (newFileTransfer.ready) {
-				pck.push_back(0x00);
-				CommsNaSPUoN::incomingTransfers[tID] = newFileTransfer;
-				currentDownlinkTransferID = tID;
-				std::string expPcks = " Expecting " + std::to_string(newFileTransfer.expectedPackets) + " packets.";
-				log("CommHndl -> Intitializer packet for downlink transfer tID: " + std::to_string(tID) + " accepted." + expPcks);
-				System::String ^ fileToDownlink = gcnew System::String(newFileTransfer.fileName.c_str());
-				downlinkStarting(fileToDownlink);
-			}
-			else {
-				downlinkComplete(false);
-				pck.push_back(0x01);
-				log("CommHndl -> Intitializer packet for downlink transfer tID: " + std::to_string(tID) + " rejected.");
-			}
-
-			sendRFPacket(XBsixtyFourBitAddress, XBsixteenBitAddress, pck);
-		}
-		else if (payload[1] == 'B') {
-			//Request to begin transfering packets of a file
-			uint16_t tID = getSixteenBitIntFromEightBitVector(payload, 2);
-			if (payload[4] == 0x00) {
-				if (backgroundWorker_Uplink->IsBusy) {
-					backgroundWorker_Uplink->CancelAsync();
-					log("CommHndl -> Cancelled uplink thread to allow for a new uplink transfer.");
-					//Stalling to allow the thread to stop
-					System::Threading::Thread::CurrentThread->Sleep(100);
+			else if (payload[1] == 'D') {
+				//Incoming transfer of Packets
+				if (payload.size() < 4) //To avoid accessing outside vector size
+					return;
+				uint16_t tID = getSixteenBitIntFromEightBitVector(payload, 2);
+				if (CommsNaSPUoN::incomingTransfers.count(tID)) {
+					addPacket(&(CommsNaSPUoN::incomingTransfers[tID]), payload);
 				}
-				array<uint16_t>^ args = gcnew array<uint16_t>(6);
-				args[0] = tID;
-				args[1] = XBsixteenBitAddress;
-				std::vector<uint8_t> sixteen(2);
-				for (int i = 0; i < 4; i++) {
-					sixteen[0] = XBsixtyFourBitAddress[2 * i];
-					sixteen[1] = XBsixtyFourBitAddress[1 + (2 * i)];
-					args[2 + i] = makeSixteenBitInt(sixteen);
+				else {
+					logErr("CommHndl -> Received a data packet for a non-existent tID " + std::to_string(tID) + ".");
 				}
-
-				startBackgroundWorkerUplink(args);
 			}
-			else {
-				if (CommsNaSPUoN::outgoingTransfers.count(tID))
+			else if (payload[1] == 'C') {
+				//Transfer Complete
+				if (payload.size() < 5) //To avoid accessing outside vector size
+					return;
+				uint16_t tID = getSixteenBitIntFromEightBitVector(payload, 2);
+				if ((payload[4] == 0x01) && (CommsNaSPUoN::incomingTransfers.count(tID))) {
+					bool complete = transferComplete(tID, XBsixtyFourBitAddress, XBsixteenBitAddress);
+					if (complete) {
+						CommsNaSPUoN::incomingTransfers.erase(tID);
+						downlinkComplete(tID);
+						std::vector<uint8_t> pck;
+						pck.push_back('T');
+						pck.push_back('C');
+						insertSixteenBitIntInEightBitVector(pck, pck.end(), tID);
+						pck.push_back(0x00);
+						sendRFPacket(XBsixtyFourBitAddress, XBsixteenBitAddress, pck);
+						log("CommHndl -> Successfully Completed incoming transfer of tID " + std::to_string(tID) + ".");
+					}
+				}
+				else if ((payload[4] == 0x00) && (CommsNaSPUoN::outgoingTransfers.count(tID))) {
 					CommsNaSPUoN::outgoingTransfers.erase(tID);
-				logErr("CommHndl -> Recepient refused transfer of tID " + std::to_string(tID) + ".");
-			}
-		}
-		else if (payload[1] == 'D') {
-			//Incoming transfer of Packets
-			uint16_t tID = getSixteenBitIntFromEightBitVector(payload, 2);
-			if (CommsNaSPUoN::incomingTransfers.count(tID)) {
-				addPacket(&(CommsNaSPUoN::incomingTransfers[tID]), payload);
-			}
-			else {
-				logErr("CommHndl -> Received a data packet for a non-existent tID " + std::to_string(tID) + ".");
-			}
-		}
-		else if (payload[1] == 'C') {
-			//Transfer Complete
-			uint16_t tID = getSixteenBitIntFromEightBitVector(payload, 2);
-			if ((payload[4] == 0x01) && (CommsNaSPUoN::incomingTransfers.count(tID))) {
-				bool complete = transferComplete(tID, XBsixtyFourBitAddress, XBsixteenBitAddress);
-				if (complete) {
-					CommsNaSPUoN::incomingTransfers.erase(tID);
-					downlinkComplete(true);
+					log("CommHndl -> Successfully Completed outgoing transfer of tID " + std::to_string(tID) + ".");
+				}
+				else if ((payload[4] == 0x02) && (CommsNaSPUoN::outgoingTransfers.count(tID))) {
 					std::vector<uint8_t> pck;
 					pck.push_back('T');
 					pck.push_back('C');
 					insertSixteenBitIntInEightBitVector(pck, pck.end(), tID);
-					pck.push_back(0x00);
+					pck.push_back(0x01);
 					sendRFPacket(XBsixtyFourBitAddress, XBsixteenBitAddress, pck);
-					log("CommHndl -> Successfully Completed incoming transfer of tID " + std::to_string(tID) + ".");
+				}
+				else {
+					std::string outOrIn = (payload[4] == 0x01) ? " Incoming " : ((payload[4] == 0x00) || (payload[4] == 0x02)) ? " Outgoing " : " Direction Unknown ";
+					logErr("CommHndl -> Received a transfer complete for a non-existent" + outOrIn + "tID " + std::to_string(tID) + ".");
 				}
 			}
-			else if ((payload[4] == 0x00) && (CommsNaSPUoN::outgoingTransfers.count(tID))) {
-				CommsNaSPUoN::outgoingTransfers.erase(tID);
-				log("CommHndl -> Successfully Completed outgoing transfer of tID " + std::to_string(tID) + ".");
-			}
-			else if ((payload[4] == 0x02) && (CommsNaSPUoN::outgoingTransfers.count(tID))) {
-				std::vector<uint8_t> pck;
-				pck.push_back('T');
-				pck.push_back('C');
-				insertSixteenBitIntInEightBitVector(pck, pck.end(), tID);
-				pck.push_back(0x01);
-				sendRFPacket(XBsixtyFourBitAddress, XBsixteenBitAddress, pck);
-			}
-			else {
-				std::string outOrIn = (payload[4] == 0x01) ? " Incoming " : ((payload[4] == 0x00) || (payload[4] == 0x02)) ? " Outgoing " : " Direction Unknown ";
-				logErr("CommHndl -> Received a transfer complete for a non-existent" + outOrIn + "tID " + std::to_string(tID) + ".");
+			else if (payload[1] == 'Z') {
+				//Cancel Transfer response
+				if (payload.size() < 4) //To avoid accessing outside vector size
+					return;
+				if (payload[2] == 0xFF) {
+					//Cancel all incomplete transfers response
+					if (payload[3] == 0x00)
+						log("CommHndl -> Satelitte has successfully deleted all incomplete transfers.");
+					else if (payload[3] == 0x01)
+						log("CommHndl -> Satelitte encountered an error when attempting to delete all incomplete transfers.");
+				}
+				if (payload[2] == 0x00) {
+					//Cancel a specific incomplete transfer response
+					if (payload.size() < 7) //To avoid accessing outside vector size
+						return;
+					uint16_t tID = getSixteenBitIntFromEightBitVector(payload, 4);
+					std::string direction = (payload[3] == 0x01) ? "uplink" : (payload[3] == 0x00) ? "downlink" : "{unknown direction}";
+					if (payload[6] == 0x00)
+						log("CommHndl -> Satelitte has successfully deleted " + direction + " incomplete transfer {" + std::to_string(tID) + "}.");
+					else if (payload[6] == 0x01)
+						log("CommHndl -> Satelitte didn't delete " + direction + " non-existent transfer {" + std::to_string(tID) + "}.");
+					else if (payload[6] == 0x0F)
+						log("CommHndl -> Satelitte encountered an error deleting " + direction + " incomplete transfer {" + std::to_string(tID) + "}.");
+				}
 			}
 		}
-		else if (payload[1] == 'Z') {
-			if (payload[2] == 0xFF) {
-				if (payload[3] == 0x00)
-					log("CommHndl -> Satelitte has successfully deleted all incomplete transfers.");
-				else if (payload[3] == 0x01)
-					log("CommHndl -> Satelitte encountered an error when attempting to delete all incomplete transfers.");
+		else if (payload[0] == 'L') {
+			if (payload[1] == 'M') {
+				//Response for saving current log file to old log files folder
+				if (payload.size() < 3) //To avoid accessing outside vector size
+					return;
+				if (payload[2] == 0)
+					log("CommHndl -> Current Log file has been successfully saved to Old Logs Folder.");
+				else
+					log("CommHndl -> An error (" + std::to_string(payload[2]) + ") occurred when attempting to save log file to Old Logs Folder.");
 			}
+			else if (payload[1] == 'F') {
+				//Response of file names of lora files
+				if (payload.size() < 3) //To avoid accessing outside vector size
+					return;
+				if (payload[2] == 0x00) {
+					log("CommHndl -> There are " + std::to_string(payload[3]) + " old log files on the satellite.");
+				}
+				else if (payload[2] == 0x01) {
+					log("CommHndl -> There was an error finding how many old log files are on the satellite.");
+				}
+				else if (payload[2] == 0x0F) {
+					payload[0] = 'l';
+					payload[1] = 'f';
+					payload[2] = '/';
+					std::string file(payload.begin(), payload.end());
+					System::String^ fileSys = gcnew System::String(file.c_str());
+					addDownlinkableFileName(fileSys);
+				}
+			}
+			else if (payload[1] == 'R') {
+				//Response of file names of old log files
+				if (payload.size() < 3) //To avoid accessing outside vector size
+					return;
+				if (payload[2] == 0x00) {
+					log("CommHndl -> There are " + std::to_string(payload[3]) + " LoRa packets on the satellite.");
+				}
+				else if (payload[2] == 0x01) {
+					log("CommHndl -> There was an error finding how many LoRa packets are on the satellite.");
+				}
+				else if (payload[2] == 0x0F) {
+					payload[0] = 'l';
+					payload[1] = 'r';
+					payload[2] = '/';
+					std::string file(payload.begin(), payload.end());
+					System::String^ fileSys = gcnew System::String(file.c_str());
+					addDownlinkableFileName(fileSys);
+				}
+			}
+		}
+		else if ((payload[0] == 'I') && (payload[1] == 'M')) {
+			//Response of the file names of images present on the satellite
+			if (payload.size() < 3) //To avoid accessing outside vector size
+				return;
 			if (payload[2] == 0x00) {
-				uint16_t tID = getSixteenBitIntFromEightBitVector(payload, 4);
-				std::string direction = (payload[3] == 0x01) ? "uplink" : (payload[3] == 0x00) ? "downlink" : "{unknown direction}";
-				if (payload[6] == 0x00)
-					log("CommHndl -> Satelitte has successfully deleted " + direction + " incomplete transfer {" + std::to_string(tID) + "}.");
-				else if (payload[6] == 0x01)
-					log("CommHndl -> Satelitte didn't delete " + direction + " non-existent transfer {" + std::to_string(tID) + "}.");
-				else if (payload[6] == 0x0F)
-					log("CommHndl -> Satelitte encountered an error deleting " + direction + " incomplete transfer {" + std::to_string(tID) + "}.");
-			}
-		}
-	}
-	else if (payload[0] == 'L') {
-		if (payload[1] == 'M') {
-			if (payload[2] == 0)
-				log("CommHndl -> Current Log file has been successfully saved to Old Logs Folder.");
-			else
-				log("CommHndl -> An error (" + std::to_string(payload[2]) + ") occurred when attempting to save log file to Old Logs Folder.");
-		}
-		else if (payload[1] == 'F') {
-			if (payload[2] == 0x00) {
-				log("CommHndl -> There are " + std::to_string(payload[3]) + " old log files on the satellite.");
+				log("CommHndl -> There are " + std::to_string(payload[3]) + " images on the satellite.");
 			}
 			else if (payload[2] == 0x01) {
-				log("CommHndl -> There was an error finding how many old log files are on the satellite.");
+				log("CommHndl -> There was an error finding how many images are on the satellite.");
 			}
 			else if (payload[2] == 0x0F) {
-				payload[0] = 'l';
-				payload[1] = 'f';
+				payload[0] = 'i';
+				payload[1] = 'm';
 				payload[2] = '/';
 				std::string file(payload.begin(), payload.end());
 				System::String^ fileSys = gcnew System::String(file.c_str());
 				addDownlinkableFileName(fileSys);
 			}
 		}
-		else if (payload[1] == 'R') {
+		else if ((payload[0] == 'X') && (payload[1] == 'C')) {
+			//Response for saving uploaded XBee Config file
+			if (payload.size() < 3) //To avoid accessing outside vector size
+				return;
 			if (payload[2] == 0x00) {
-				log("CommHndl -> There are " + std::to_string(payload[3]) + " LoRa packets on the satellite.");
+				log("CommHndl -> Satellite Successfully copied the config file.");
+			}
+			else if (payload[2] == 0x10) {
+				log("CommHndl -> Satellite Successfully copied the config file and successfully setup the xbee with the new settings.");
 			}
 			else if (payload[2] == 0x01) {
-				log("CommHndl -> There was an error finding how many LoRa packets are on the satellite.");
+				logErr("CommHndl -> Satellite failed to copy config file from uplink location. File not found.");
 			}
-			else if (payload[2] == 0x0F) {
-				payload[0] = 'l';
-				payload[1] = 'r';
-				payload[2] = '/';
-				std::string file(payload.begin(), payload.end());
-				System::String^ fileSys = gcnew System::String(file.c_str());
-				addDownlinkableFileName(fileSys);
+			else if (payload[2] == 0x02) {
+				logErr("CommHndl -> Satellite failed to copy config file from uplink location due to error.");
+			}
+			else if (payload[2] == 0x04) {
+				logErr("CommHndl -> Satellite Successfully copied the config file BUT failed to setup the xbee with the new settings.");
 			}
 		}
+		else if ((payload[0] == 'D') && (payload[1] == 'R')) {
+			//Payload for sending date and time to the satellite
+			if (payload.size() != 2) //To avoid errors
+				return;
+			payload[1] = 'S';
+
+			//Retrieving system time
+			time_t now = time(0);
+			time_t *timeNow = &now;
+			tm *localTime = localtime(timeNow);
+
+			//Year
+			uint16_t year = localTime->tm_year + 1900;
+			payload.push_back((uint8_t)(year / 256));
+			payload.push_back((uint8_t)(year % 256));
+			//Month
+			payload.push_back((uint8_t)(localTime->tm_mon + 1));
+			//Day of the month
+			payload.push_back((uint8_t)(localTime->tm_mday));
+
+			//Time -> Hour, Minutes and Seconds
+			payload.push_back((uint8_t)(localTime->tm_hour));
+			payload.push_back((uint8_t)(localTime->tm_min));
+			payload.push_back((uint8_t)(localTime->tm_sec));
+
+			sendRFPacket(XBsixtyFourBitAddress, XBsixteenBitAddress, payload);
+
+			log("CommHndl -> Sent time to the satellite.");
+		}
 	}
-	else if ((payload[0] == 'I') && (payload[1] == 'M')) {
-		if (payload[2] == 0x00) {
-			log("CommHndl -> There are " + std::to_string(payload[3]) + " images on the satellite.");
-		}
-		else if (payload[2] == 0x01) {
-			log("CommHndl -> There was an error finding how many images are on the satellite.");
-		}
-		else if (payload[2] == 0x0F) {
-			payload[0] = 'i';
-			payload[1] = 'm';
-			payload[2] = '/';
-			std::string file(payload.begin(), payload.end());
-			System::String^ fileSys = gcnew System::String(file.c_str());
-			addDownlinkableFileName(fileSys);
-		}
-	}
-	else if ((payload[0] == 'X') && (payload[1] == 'C')) {
-		if (payload[2] == 0x00) {
-			log("CommHndl -> Satellite Successfully copied the config file.");
-		}
-		else if (payload[2] == 0x10) {
-			log("CommHndl -> Satellite Successfully copied the config file and successfully setup the xbee with the new settings.");
-		}
-		else if (payload[2] == 0x01) {
-			logErr("CommHndl -> Satellite failed to copy config file from uplink location. File not found.");
-		}
-		else if (payload[2] == 0x02) {
-			logErr("CommHndl -> Satellite failed to copy config file from uplink location due to error.");
-		}
-		else if (payload[2] == 0x04) {
-			logErr("CommHndl -> Satellite Successfully copied the config file BUT failed to setup the xbee with the new settings.");
-		}
+	catch (...) {
+		logErr("CommHndl -> Error processing incoming payload: " + vectorToHexString(payload) + ".");
 	}
 }
 
@@ -584,6 +662,10 @@ void GSUI::MyForm::cancelIncomingTransfer(uint16_t tID) {
 	}
 	if (CommsNaSPUoN::incomingTransfers.count(tID)) {
 		CommsNaSPUoN::incomingTransfers.erase(tID);
+		if (transferForms->count(tID)) {
+			transferForms[tID]->Close();
+			transferForms->erase(tID);
+		}
 	}
 	else {
 		log("The current incoming File Transfer appears to have already completed.");
@@ -658,7 +740,9 @@ void GSUI::MyForm::cancelAllTransfers() {
 	}
 	log("CommHndl -> All incomplete transfers have been deleted successfully.");
 
-	downlinkComplete(false);
+	for (cliext::map<uint16_t, IncomingTransfer^>::iterator it = transferForms->begin(); it != transferForms->end(); it++) {
+		transferForms->erase(it);
+	}
 	uplinkComplete(false);
 }
 

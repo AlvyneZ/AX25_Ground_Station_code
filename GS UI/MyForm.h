@@ -4,8 +4,12 @@
 #include <vector>
 #include <msclr\marshal_cppstd.h>
 #include <msclr/lock.h>
+#include <cliext/map>
 
 #include "fileTransferClass.h"
+#include "MainFormForwardDeclaration.h"
+#include "AboutDialog.h"
+#include "IncomingTransfer.h"
 
 
 namespace GSUI {
@@ -41,6 +45,7 @@ namespace GSUI {
 			this->uplinkSendNextMutex = gcnew System::Object();
 			this->framesToResendMutex = gcnew System::Object();
 			this->UIThreadID = System::Threading::Thread::CurrentThread->ManagedThreadId;
+			this->transferForms = gcnew cliext::map<uint16_t, IncomingTransfer^>();
 			//
 		}
 
@@ -84,11 +89,11 @@ namespace GSUI {
 	private: System::ComponentModel::BackgroundWorker^  backgroundWorker_Receiver;
 	private: System::Windows::Forms::ProgressBar^  progressBar_uplink;
 	private: System::ComponentModel::BackgroundWorker^  backgroundWorker_Uplink;
-	private: System::Windows::Forms::ProgressBar^  progressBar_downlink;
+
 	private: System::ComponentModel::BackgroundWorker^  backgroundWorker_DownlinkPartRequest;
 	private: System::Windows::Forms::TextBox^  textBox_SatelliteAddress;
 	private: System::Windows::Forms::Label^  label_SatelliteAddress;
-	private: System::Windows::Forms::Button^  button_downlinkCancel;
+
 	private: System::Windows::Forms::Label^  label_sixteenBitSatAddress;
 	private: System::Windows::Forms::TextBox^  textBox_sixteenBitSatAddress;
 	private: System::Windows::Forms::TextBox^  textBox_DownlinkSaveLocation;
@@ -101,6 +106,10 @@ namespace GSUI {
 
 	private: System::ComponentModel::IContainer^  components;
 
+	public:
+			 uint64_t satelliteAddress;
+			 uint16_t sixteenBitAddress;
+			 cliext::map<uint16_t, IncomingTransfer^>^ transferForms;
 	private:
 		/// <summary>
 		/// Required designer variable.
@@ -111,10 +120,11 @@ namespace GSUI {
 		System::Object^ uplinkSendNextMutex;
 		System::Object^ framesToResendMutex;
 		uint16_t currentDownlinkTransferID, currentUplinkTransferID;
-		uint64_t satelliteAddress;
-		uint16_t sixteenBitAddress;
 		System::String^ downlinkSavelocation;
 		int UIThreadID, receiverThreadID, UplinkThreadID, DownlinkPtRqThreadID;
+		AboutDialog^ about;
+	private: System::Windows::Forms::Button^  button_about;
+
 	private: System::ComponentModel::BackgroundWorker^  backgroundWorker_Resender;
 
 			 /// </summary>
@@ -128,6 +138,7 @@ namespace GSUI {
 		void InitializeComponent(void)
 		{
 			this->components = (gcnew System::ComponentModel::Container());
+			System::ComponentModel::ComponentResourceManager^  resources = (gcnew System::ComponentModel::ComponentResourceManager(MyForm::typeid));
 			this->serialPort1 = (gcnew System::IO::Ports::SerialPort(this->components));
 			this->comboBox_COMPort = (gcnew System::Windows::Forms::ComboBox());
 			this->label_COMPort = (gcnew System::Windows::Forms::Label());
@@ -152,11 +163,9 @@ namespace GSUI {
 			this->backgroundWorker_Receiver = (gcnew System::ComponentModel::BackgroundWorker());
 			this->progressBar_uplink = (gcnew System::Windows::Forms::ProgressBar());
 			this->backgroundWorker_Uplink = (gcnew System::ComponentModel::BackgroundWorker());
-			this->progressBar_downlink = (gcnew System::Windows::Forms::ProgressBar());
 			this->backgroundWorker_DownlinkPartRequest = (gcnew System::ComponentModel::BackgroundWorker());
 			this->textBox_SatelliteAddress = (gcnew System::Windows::Forms::TextBox());
 			this->label_SatelliteAddress = (gcnew System::Windows::Forms::Label());
-			this->button_downlinkCancel = (gcnew System::Windows::Forms::Button());
 			this->button_uplinkCancel = (gcnew System::Windows::Forms::Button());
 			this->label_sixteenBitSatAddress = (gcnew System::Windows::Forms::Label());
 			this->textBox_sixteenBitSatAddress = (gcnew System::Windows::Forms::TextBox());
@@ -164,6 +173,7 @@ namespace GSUI {
 			this->labelDownlinkSaveLocation = (gcnew System::Windows::Forms::Label());
 			this->button_saveNewConfigFile = (gcnew System::Windows::Forms::Button());
 			this->backgroundWorker_Resender = (gcnew System::ComponentModel::BackgroundWorker());
+			this->button_about = (gcnew System::Windows::Forms::Button());
 			this->groupBox_Initialization->SuspendLayout();
 			this->SuspendLayout();
 			// 
@@ -171,19 +181,17 @@ namespace GSUI {
 			// 
 			this->comboBox_COMPort->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
 			this->comboBox_COMPort->FormattingEnabled = true;
-			this->comboBox_COMPort->Location = System::Drawing::Point(101, 27);
-			this->comboBox_COMPort->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->comboBox_COMPort->Location = System::Drawing::Point(76, 22);
 			this->comboBox_COMPort->Name = L"comboBox_COMPort";
-			this->comboBox_COMPort->Size = System::Drawing::Size(168, 24);
+			this->comboBox_COMPort->Size = System::Drawing::Size(127, 21);
 			this->comboBox_COMPort->TabIndex = 0;
 			// 
 			// label_COMPort
 			// 
 			this->label_COMPort->AutoSize = true;
-			this->label_COMPort->Location = System::Drawing::Point(19, 31);
-			this->label_COMPort->Margin = System::Windows::Forms::Padding(4, 0, 4, 0);
+			this->label_COMPort->Location = System::Drawing::Point(14, 25);
 			this->label_COMPort->Name = L"label_COMPort";
-			this->label_COMPort->Size = System::Drawing::Size(73, 17);
+			this->label_COMPort->Size = System::Drawing::Size(56, 13);
 			this->label_COMPort->TabIndex = 1;
 			this->label_COMPort->Text = L"COM Port:";
 			this->label_COMPort->DoubleClick += gcnew System::EventHandler(this, &MyForm::label_COMPort_DoubleClick);
@@ -196,19 +204,17 @@ namespace GSUI {
 				L"1200", L"2400", L"4800", L"9600", L"19200",
 					L"38400", L"57600", L"115200", L"230400"
 			});
-			this->comboBox_Baud->Location = System::Drawing::Point(444, 27);
-			this->comboBox_Baud->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->comboBox_Baud->Location = System::Drawing::Point(333, 22);
 			this->comboBox_Baud->Name = L"comboBox_Baud";
-			this->comboBox_Baud->Size = System::Drawing::Size(160, 24);
+			this->comboBox_Baud->Size = System::Drawing::Size(121, 21);
 			this->comboBox_Baud->TabIndex = 2;
 			// 
 			// label_baudRate
 			// 
 			this->label_baudRate->AutoSize = true;
-			this->label_baudRate->Location = System::Drawing::Point(355, 31);
-			this->label_baudRate->Margin = System::Windows::Forms::Padding(4, 0, 4, 0);
+			this->label_baudRate->Location = System::Drawing::Point(266, 25);
 			this->label_baudRate->Name = L"label_baudRate";
-			this->label_baudRate->Size = System::Drawing::Size(79, 17);
+			this->label_baudRate->Size = System::Drawing::Size(61, 13);
 			this->label_baudRate->TabIndex = 3;
 			this->label_baudRate->Text = L"Baud Rate:";
 			// 
@@ -216,10 +222,9 @@ namespace GSUI {
 			// 
 			this->button_initPort->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button_initPort->Location = System::Drawing::Point(140, 70);
-			this->button_initPort->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->button_initPort->Location = System::Drawing::Point(105, 57);
 			this->button_initPort->Name = L"button_initPort";
-			this->button_initPort->Size = System::Drawing::Size(155, 64);
+			this->button_initPort->Size = System::Drawing::Size(116, 52);
 			this->button_initPort->TabIndex = 4;
 			this->button_initPort->Text = L"Init Port";
 			this->button_initPort->UseVisualStyleBackColor = true;
@@ -230,10 +235,9 @@ namespace GSUI {
 			this->button_closePort->Enabled = false;
 			this->button_closePort->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Regular,
 				System::Drawing::GraphicsUnit::Point, static_cast<System::Byte>(0)));
-			this->button_closePort->Location = System::Drawing::Point(352, 73);
-			this->button_closePort->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->button_closePort->Location = System::Drawing::Point(264, 59);
 			this->button_closePort->Name = L"button_closePort";
-			this->button_closePort->Size = System::Drawing::Size(151, 60);
+			this->button_closePort->Size = System::Drawing::Size(113, 49);
 			this->button_closePort->TabIndex = 5;
 			this->button_closePort->Text = L"Close Port";
 			this->button_closePort->UseVisualStyleBackColor = true;
@@ -241,21 +245,19 @@ namespace GSUI {
 			// 
 			// richTextBox_output
 			// 
-			this->richTextBox_output->Location = System::Drawing::Point(484, 164);
-			this->richTextBox_output->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->richTextBox_output->Location = System::Drawing::Point(363, 133);
 			this->richTextBox_output->Name = L"richTextBox_output";
 			this->richTextBox_output->ReadOnly = true;
-			this->richTextBox_output->Size = System::Drawing::Size(652, 456);
+			this->richTextBox_output->Size = System::Drawing::Size(490, 371);
 			this->richTextBox_output->TabIndex = 6;
 			this->richTextBox_output->Text = L"Output:\n";
 			// 
 			// button_imagesTaken
 			// 
 			this->button_imagesTaken->Enabled = false;
-			this->button_imagesTaken->Location = System::Drawing::Point(79, 164);
-			this->button_imagesTaken->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->button_imagesTaken->Location = System::Drawing::Point(59, 133);
 			this->button_imagesTaken->Name = L"button_imagesTaken";
-			this->button_imagesTaken->Size = System::Drawing::Size(319, 28);
+			this->button_imagesTaken->Size = System::Drawing::Size(239, 23);
 			this->button_imagesTaken->TabIndex = 7;
 			this->button_imagesTaken->Text = L"Check Images Taken";
 			this->button_imagesTaken->UseVisualStyleBackColor = true;
@@ -264,10 +266,9 @@ namespace GSUI {
 			// button_LoRaPackets
 			// 
 			this->button_LoRaPackets->Enabled = false;
-			this->button_LoRaPackets->Location = System::Drawing::Point(79, 199);
-			this->button_LoRaPackets->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->button_LoRaPackets->Location = System::Drawing::Point(59, 162);
 			this->button_LoRaPackets->Name = L"button_LoRaPackets";
-			this->button_LoRaPackets->Size = System::Drawing::Size(319, 28);
+			this->button_LoRaPackets->Size = System::Drawing::Size(239, 23);
 			this->button_LoRaPackets->TabIndex = 8;
 			this->button_LoRaPackets->Text = L"Check LoRa Packets Received";
 			this->button_LoRaPackets->UseVisualStyleBackColor = true;
@@ -276,10 +277,9 @@ namespace GSUI {
 			// button_saveLogFile
 			// 
 			this->button_saveLogFile->Enabled = false;
-			this->button_saveLogFile->Location = System::Drawing::Point(79, 235);
-			this->button_saveLogFile->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->button_saveLogFile->Location = System::Drawing::Point(59, 191);
 			this->button_saveLogFile->Name = L"button_saveLogFile";
-			this->button_saveLogFile->Size = System::Drawing::Size(319, 28);
+			this->button_saveLogFile->Size = System::Drawing::Size(239, 23);
 			this->button_saveLogFile->TabIndex = 9;
 			this->button_saveLogFile->Text = L"Save Current log File To Old log Files";
 			this->button_saveLogFile->UseVisualStyleBackColor = true;
@@ -288,10 +288,9 @@ namespace GSUI {
 			// button_oldLogFiles
 			// 
 			this->button_oldLogFiles->Enabled = false;
-			this->button_oldLogFiles->Location = System::Drawing::Point(79, 271);
-			this->button_oldLogFiles->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->button_oldLogFiles->Location = System::Drawing::Point(59, 220);
 			this->button_oldLogFiles->Name = L"button_oldLogFiles";
-			this->button_oldLogFiles->Size = System::Drawing::Size(319, 28);
+			this->button_oldLogFiles->Size = System::Drawing::Size(239, 23);
 			this->button_oldLogFiles->TabIndex = 10;
 			this->button_oldLogFiles->Text = L"Check Old log Files";
 			this->button_oldLogFiles->UseVisualStyleBackColor = true;
@@ -300,10 +299,9 @@ namespace GSUI {
 			// button_houseKeepingData
 			// 
 			this->button_houseKeepingData->Enabled = false;
-			this->button_houseKeepingData->Location = System::Drawing::Point(79, 368);
-			this->button_houseKeepingData->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->button_houseKeepingData->Location = System::Drawing::Point(59, 299);
 			this->button_houseKeepingData->Name = L"button_houseKeepingData";
-			this->button_houseKeepingData->Size = System::Drawing::Size(319, 52);
+			this->button_houseKeepingData->Size = System::Drawing::Size(239, 42);
 			this->button_houseKeepingData->TabIndex = 11;
 			this->button_houseKeepingData->Text = L"Request HouseKeeping Data";
 			this->button_houseKeepingData->UseVisualStyleBackColor = true;
@@ -312,10 +310,9 @@ namespace GSUI {
 			// button_downlinkRequest
 			// 
 			this->button_downlinkRequest->Enabled = false;
-			this->button_downlinkRequest->Location = System::Drawing::Point(319, 452);
-			this->button_downlinkRequest->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->button_downlinkRequest->Location = System::Drawing::Point(239, 367);
 			this->button_downlinkRequest->Name = L"button_downlinkRequest";
-			this->button_downlinkRequest->Size = System::Drawing::Size(143, 58);
+			this->button_downlinkRequest->Size = System::Drawing::Size(107, 47);
 			this->button_downlinkRequest->TabIndex = 12;
 			this->button_downlinkRequest->Text = L"Request Downlink File Transfer";
 			this->button_downlinkRequest->UseVisualStyleBackColor = true;
@@ -325,39 +322,35 @@ namespace GSUI {
 			// 
 			this->comboBox_downlinkFileName->Enabled = false;
 			this->comboBox_downlinkFileName->FormattingEnabled = true;
-			this->comboBox_downlinkFileName->Location = System::Drawing::Point(44, 473);
-			this->comboBox_downlinkFileName->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->comboBox_downlinkFileName->Location = System::Drawing::Point(33, 384);
 			this->comboBox_downlinkFileName->Name = L"comboBox_downlinkFileName";
-			this->comboBox_downlinkFileName->Size = System::Drawing::Size(265, 24);
+			this->comboBox_downlinkFileName->Size = System::Drawing::Size(200, 21);
 			this->comboBox_downlinkFileName->TabIndex = 13;
 			// 
 			// label_downlinkFileName
 			// 
 			this->label_downlinkFileName->AutoSize = true;
-			this->label_downlinkFileName->Location = System::Drawing::Point(40, 452);
-			this->label_downlinkFileName->Margin = System::Windows::Forms::Padding(4, 0, 4, 0);
+			this->label_downlinkFileName->Location = System::Drawing::Point(30, 367);
 			this->label_downlinkFileName->Name = L"label_downlinkFileName";
-			this->label_downlinkFileName->Size = System::Drawing::Size(197, 17);
+			this->label_downlinkFileName->Size = System::Drawing::Size(150, 13);
 			this->label_downlinkFileName->TabIndex = 14;
 			this->label_downlinkFileName->Text = L"File To Request For Downlink:";
 			// 
 			// label_uplinkFileName
 			// 
 			this->label_uplinkFileName->AutoSize = true;
-			this->label_uplinkFileName->Location = System::Drawing::Point(40, 529);
-			this->label_uplinkFileName->Margin = System::Windows::Forms::Padding(4, 0, 4, 0);
+			this->label_uplinkFileName->Location = System::Drawing::Point(30, 430);
 			this->label_uplinkFileName->Name = L"label_uplinkFileName";
-			this->label_uplinkFileName->Size = System::Drawing::Size(150, 17);
+			this->label_uplinkFileName->Size = System::Drawing::Size(114, 13);
 			this->label_uplinkFileName->TabIndex = 17;
 			this->label_uplinkFileName->Text = L"File To Attempt Uplink:";
 			// 
 			// button_uplinkRequest
 			// 
 			this->button_uplinkRequest->Enabled = false;
-			this->button_uplinkRequest->Location = System::Drawing::Point(319, 529);
-			this->button_uplinkRequest->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->button_uplinkRequest->Location = System::Drawing::Point(239, 430);
 			this->button_uplinkRequest->Name = L"button_uplinkRequest";
-			this->button_uplinkRequest->Size = System::Drawing::Size(143, 82);
+			this->button_uplinkRequest->Size = System::Drawing::Size(107, 67);
 			this->button_uplinkRequest->TabIndex = 15;
 			this->button_uplinkRequest->Text = L"Attempt Uplink File Transfer";
 			this->button_uplinkRequest->UseVisualStyleBackColor = true;
@@ -366,12 +359,11 @@ namespace GSUI {
 			// textBox_uplinkFileName
 			// 
 			this->textBox_uplinkFileName->Enabled = false;
-			this->textBox_uplinkFileName->Location = System::Drawing::Point(44, 549);
-			this->textBox_uplinkFileName->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->textBox_uplinkFileName->Location = System::Drawing::Point(33, 446);
 			this->textBox_uplinkFileName->Multiline = true;
 			this->textBox_uplinkFileName->Name = L"textBox_uplinkFileName";
 			this->textBox_uplinkFileName->ScrollBars = System::Windows::Forms::ScrollBars::Vertical;
-			this->textBox_uplinkFileName->Size = System::Drawing::Size(265, 50);
+			this->textBox_uplinkFileName->Size = System::Drawing::Size(200, 41);
 			this->textBox_uplinkFileName->TabIndex = 18;
 			this->textBox_uplinkFileName->Text = L"C:\\Users\\AlvyneZ\\Desktop\\downlinks\\im\\testImage2.png";
 			// 
@@ -384,21 +376,18 @@ namespace GSUI {
 			this->groupBox_Initialization->Controls->Add(this->comboBox_Baud);
 			this->groupBox_Initialization->Controls->Add(this->label_COMPort);
 			this->groupBox_Initialization->Controls->Add(this->comboBox_COMPort);
-			this->groupBox_Initialization->Location = System::Drawing::Point(117, 6);
-			this->groupBox_Initialization->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->groupBox_Initialization->Location = System::Drawing::Point(88, 5);
 			this->groupBox_Initialization->Name = L"groupBox_Initialization";
-			this->groupBox_Initialization->Padding = System::Windows::Forms::Padding(4, 4, 4, 4);
-			this->groupBox_Initialization->Size = System::Drawing::Size(643, 146);
+			this->groupBox_Initialization->Size = System::Drawing::Size(482, 119);
 			this->groupBox_Initialization->TabIndex = 19;
 			this->groupBox_Initialization->TabStop = false;
 			this->groupBox_Initialization->Text = L"Initialization";
 			// 
 			// progressBar_PortOpenSatus
 			// 
-			this->progressBar_PortOpenSatus->Location = System::Drawing::Point(303, 91);
-			this->progressBar_PortOpenSatus->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->progressBar_PortOpenSatus->Location = System::Drawing::Point(227, 74);
 			this->progressBar_PortOpenSatus->Name = L"progressBar_PortOpenSatus";
-			this->progressBar_PortOpenSatus->Size = System::Drawing::Size(41, 22);
+			this->progressBar_PortOpenSatus->Size = System::Drawing::Size(31, 18);
 			this->progressBar_PortOpenSatus->TabIndex = 6;
 			// 
 			// backgroundWorker_Receiver
@@ -411,10 +400,9 @@ namespace GSUI {
 			// 
 			// progressBar_uplink
 			// 
-			this->progressBar_uplink->Location = System::Drawing::Point(44, 602);
-			this->progressBar_uplink->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->progressBar_uplink->Location = System::Drawing::Point(33, 489);
 			this->progressBar_uplink->Name = L"progressBar_uplink";
-			this->progressBar_uplink->Size = System::Drawing::Size(267, 10);
+			this->progressBar_uplink->Size = System::Drawing::Size(200, 8);
 			this->progressBar_uplink->TabIndex = 20;
 			// 
 			// backgroundWorker_Uplink
@@ -424,14 +412,6 @@ namespace GSUI {
 			this->backgroundWorker_Uplink->DoWork += gcnew System::ComponentModel::DoWorkEventHandler(this, &MyForm::backgroundWorker_Uplink_DoWork);
 			this->backgroundWorker_Uplink->ProgressChanged += gcnew System::ComponentModel::ProgressChangedEventHandler(this, &MyForm::backgroundWorker_Uplink_ProgressChanged);
 			this->backgroundWorker_Uplink->RunWorkerCompleted += gcnew System::ComponentModel::RunWorkerCompletedEventHandler(this, &MyForm::backgroundWorker_Uplink_RunWorkerCompleted);
-			// 
-			// progressBar_downlink
-			// 
-			this->progressBar_downlink->Location = System::Drawing::Point(44, 500);
-			this->progressBar_downlink->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
-			this->progressBar_downlink->Name = L"progressBar_downlink";
-			this->progressBar_downlink->Size = System::Drawing::Size(267, 10);
-			this->progressBar_downlink->TabIndex = 21;
 			// 
 			// backgroundWorker_DownlinkPartRequest
 			// 
@@ -443,40 +423,22 @@ namespace GSUI {
 			// textBox_SatelliteAddress
 			// 
 			this->textBox_SatelliteAddress->CharacterCasing = System::Windows::Forms::CharacterCasing::Upper;
-			this->textBox_SatelliteAddress->Location = System::Drawing::Point(949, 41);
-			this->textBox_SatelliteAddress->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->textBox_SatelliteAddress->Location = System::Drawing::Point(712, 33);
 			this->textBox_SatelliteAddress->MaxLength = 16;
 			this->textBox_SatelliteAddress->Name = L"textBox_SatelliteAddress";
-			this->textBox_SatelliteAddress->Size = System::Drawing::Size(147, 22);
+			this->textBox_SatelliteAddress->Size = System::Drawing::Size(111, 20);
 			this->textBox_SatelliteAddress->TabIndex = 22;
-			this->textBox_SatelliteAddress->Text = L"0013A200414EE097";
+			this->textBox_SatelliteAddress->Text = L"0013A20041C8CD27";
 			this->textBox_SatelliteAddress->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &MyForm::textBox_SatelliteAddress_KeyPress);
 			// 
 			// label_SatelliteAddress
 			// 
 			this->label_SatelliteAddress->AutoSize = true;
-			this->label_SatelliteAddress->Location = System::Drawing::Point(789, 44);
-			this->label_SatelliteAddress->Margin = System::Windows::Forms::Padding(4, 0, 4, 0);
+			this->label_SatelliteAddress->Location = System::Drawing::Point(592, 36);
 			this->label_SatelliteAddress->Name = L"label_SatelliteAddress";
-			this->label_SatelliteAddress->Size = System::Drawing::Size(153, 17);
+			this->label_SatelliteAddress->Size = System::Drawing::Size(114, 13);
 			this->label_SatelliteAddress->TabIndex = 23;
 			this->label_SatelliteAddress->Text = L"64 bit Satellite Address";
-			// 
-			// button_downlinkCancel
-			// 
-			this->button_downlinkCancel->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(255)),
-				static_cast<System::Int32>(static_cast<System::Byte>(128)), static_cast<System::Int32>(static_cast<System::Byte>(128)));
-			this->button_downlinkCancel->Enabled = false;
-			this->button_downlinkCancel->ForeColor = System::Drawing::SystemColors::ControlText;
-			this->button_downlinkCancel->Location = System::Drawing::Point(239, 439);
-			this->button_downlinkCancel->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
-			this->button_downlinkCancel->Name = L"button_downlinkCancel";
-			this->button_downlinkCancel->Size = System::Drawing::Size(72, 28);
-			this->button_downlinkCancel->TabIndex = 24;
-			this->button_downlinkCancel->Text = L"Cancel";
-			this->button_downlinkCancel->UseVisualStyleBackColor = false;
-			this->button_downlinkCancel->Visible = false;
-			this->button_downlinkCancel->Click += gcnew System::EventHandler(this, &MyForm::button_downlinkCancel_Click);
 			// 
 			// button_uplinkCancel
 			// 
@@ -484,10 +446,9 @@ namespace GSUI {
 				static_cast<System::Int32>(static_cast<System::Byte>(128)), static_cast<System::Int32>(static_cast<System::Byte>(128)));
 			this->button_uplinkCancel->Enabled = false;
 			this->button_uplinkCancel->ForeColor = System::Drawing::SystemColors::ControlText;
-			this->button_uplinkCancel->Location = System::Drawing::Point(239, 517);
-			this->button_uplinkCancel->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->button_uplinkCancel->Location = System::Drawing::Point(179, 420);
 			this->button_uplinkCancel->Name = L"button_uplinkCancel";
-			this->button_uplinkCancel->Size = System::Drawing::Size(72, 28);
+			this->button_uplinkCancel->Size = System::Drawing::Size(54, 23);
 			this->button_uplinkCancel->TabIndex = 25;
 			this->button_uplinkCancel->Text = L"Cancel";
 			this->button_uplinkCancel->UseVisualStyleBackColor = false;
@@ -497,54 +458,49 @@ namespace GSUI {
 			// label_sixteenBitSatAddress
 			// 
 			this->label_sixteenBitSatAddress->AutoSize = true;
-			this->label_sixteenBitSatAddress->Location = System::Drawing::Point(789, 18);
-			this->label_sixteenBitSatAddress->Margin = System::Windows::Forms::Padding(4, 0, 4, 0);
+			this->label_sixteenBitSatAddress->Location = System::Drawing::Point(592, 15);
 			this->label_sixteenBitSatAddress->Name = L"label_sixteenBitSatAddress";
-			this->label_sixteenBitSatAddress->Size = System::Drawing::Size(153, 17);
+			this->label_sixteenBitSatAddress->Size = System::Drawing::Size(114, 13);
 			this->label_sixteenBitSatAddress->TabIndex = 27;
 			this->label_sixteenBitSatAddress->Text = L"16 bit Satellite Address";
 			// 
 			// textBox_sixteenBitSatAddress
 			// 
 			this->textBox_sixteenBitSatAddress->CharacterCasing = System::Windows::Forms::CharacterCasing::Upper;
-			this->textBox_sixteenBitSatAddress->Location = System::Drawing::Point(949, 15);
-			this->textBox_sixteenBitSatAddress->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->textBox_sixteenBitSatAddress->Location = System::Drawing::Point(712, 12);
 			this->textBox_sixteenBitSatAddress->MaxLength = 4;
 			this->textBox_sixteenBitSatAddress->Name = L"textBox_sixteenBitSatAddress";
-			this->textBox_sixteenBitSatAddress->Size = System::Drawing::Size(76, 22);
+			this->textBox_sixteenBitSatAddress->Size = System::Drawing::Size(58, 20);
 			this->textBox_sixteenBitSatAddress->TabIndex = 26;
-			this->textBox_sixteenBitSatAddress->Text = L"ABCD";
+			this->textBox_sixteenBitSatAddress->Text = L"5678";
 			this->textBox_sixteenBitSatAddress->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
 			this->textBox_sixteenBitSatAddress->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &MyForm::textBox_sixteenBitSatAddress_KeyPress);
 			// 
 			// textBox_DownlinkSaveLocation
 			// 
-			this->textBox_DownlinkSaveLocation->Location = System::Drawing::Point(800, 97);
-			this->textBox_DownlinkSaveLocation->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->textBox_DownlinkSaveLocation->Location = System::Drawing::Point(600, 79);
 			this->textBox_DownlinkSaveLocation->Multiline = true;
 			this->textBox_DownlinkSaveLocation->Name = L"textBox_DownlinkSaveLocation";
 			this->textBox_DownlinkSaveLocation->ScrollBars = System::Windows::Forms::ScrollBars::Vertical;
-			this->textBox_DownlinkSaveLocation->Size = System::Drawing::Size(265, 50);
+			this->textBox_DownlinkSaveLocation->Size = System::Drawing::Size(200, 41);
 			this->textBox_DownlinkSaveLocation->TabIndex = 29;
 			this->textBox_DownlinkSaveLocation->Text = L"C:\\Users\\AlvyneZ\\Desktop\\downlinks";
 			// 
 			// labelDownlinkSaveLocation
 			// 
 			this->labelDownlinkSaveLocation->AutoSize = true;
-			this->labelDownlinkSaveLocation->Location = System::Drawing::Point(796, 78);
-			this->labelDownlinkSaveLocation->Margin = System::Windows::Forms::Padding(4, 0, 4, 0);
+			this->labelDownlinkSaveLocation->Location = System::Drawing::Point(597, 63);
 			this->labelDownlinkSaveLocation->Name = L"labelDownlinkSaveLocation";
-			this->labelDownlinkSaveLocation->Size = System::Drawing::Size(162, 17);
+			this->labelDownlinkSaveLocation->Size = System::Drawing::Size(126, 13);
 			this->labelDownlinkSaveLocation->TabIndex = 28;
 			this->labelDownlinkSaveLocation->Text = L"Downlink Save Location:";
 			// 
 			// button_saveNewConfigFile
 			// 
 			this->button_saveNewConfigFile->Enabled = false;
-			this->button_saveNewConfigFile->Location = System::Drawing::Point(80, 306);
-			this->button_saveNewConfigFile->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->button_saveNewConfigFile->Location = System::Drawing::Point(60, 249);
 			this->button_saveNewConfigFile->Name = L"button_saveNewConfigFile";
-			this->button_saveNewConfigFile->Size = System::Drawing::Size(317, 28);
+			this->button_saveNewConfigFile->Size = System::Drawing::Size(238, 23);
 			this->button_saveNewConfigFile->TabIndex = 30;
 			this->button_saveNewConfigFile->Text = L"Save new Config File and Apply";
 			this->button_saveNewConfigFile->UseVisualStyleBackColor = true;
@@ -556,21 +512,30 @@ namespace GSUI {
 			this->backgroundWorker_Resender->DoWork += gcnew System::ComponentModel::DoWorkEventHandler(this, &MyForm::backgroundWorker_Resender_DoWork);
 			this->backgroundWorker_Resender->RunWorkerCompleted += gcnew System::ComponentModel::RunWorkerCompletedEventHandler(this, &MyForm::backgroundWorker_Resender_RunWorkerCompleted);
 			// 
+			// button_about
+			// 
+			this->button_about->Location = System::Drawing::Point(4, 6);
+			this->button_about->Name = L"button_about";
+			this->button_about->Size = System::Drawing::Size(51, 23);
+			this->button_about->TabIndex = 31;
+			this->button_about->Text = L"About";
+			this->button_about->UseVisualStyleBackColor = true;
+			this->button_about->Click += gcnew System::EventHandler(this, &MyForm::button_about_Click);
+			// 
 			// MyForm
 			// 
-			this->AutoScaleDimensions = System::Drawing::SizeF(8, 16);
+			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-			this->ClientSize = System::Drawing::Size(1153, 635);
+			this->ClientSize = System::Drawing::Size(865, 516);
+			this->Controls->Add(this->button_about);
 			this->Controls->Add(this->button_saveNewConfigFile);
 			this->Controls->Add(this->textBox_DownlinkSaveLocation);
 			this->Controls->Add(this->labelDownlinkSaveLocation);
 			this->Controls->Add(this->label_sixteenBitSatAddress);
 			this->Controls->Add(this->textBox_sixteenBitSatAddress);
 			this->Controls->Add(this->button_uplinkCancel);
-			this->Controls->Add(this->button_downlinkCancel);
 			this->Controls->Add(this->label_SatelliteAddress);
 			this->Controls->Add(this->textBox_SatelliteAddress);
-			this->Controls->Add(this->progressBar_downlink);
 			this->Controls->Add(this->progressBar_uplink);
 			this->Controls->Add(this->groupBox_Initialization);
 			this->Controls->Add(this->textBox_uplinkFileName);
@@ -585,7 +550,7 @@ namespace GSUI {
 			this->Controls->Add(this->button_LoRaPackets);
 			this->Controls->Add(this->button_imagesTaken);
 			this->Controls->Add(this->richTextBox_output);
-			this->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->Icon = (cli::safe_cast<System::Drawing::Icon^>(resources->GetObject(L"$this.Icon")));
 			this->Name = L"MyForm";
 			this->Text = L"NaSPUoN Ground Station Software";
 			this->groupBox_Initialization->ResumeLayout(false);
@@ -732,6 +697,11 @@ namespace GSUI {
 					//Make sure Port is open
 					if (!(this->serialPort1->IsOpen)) {
 						logErr("Could not close the port. The port is not open.");
+						setEnableInputs(false);
+					}
+					//Make sure downlinks are complete
+					else if (!transferForms->empty()) {
+						logErr("Could not close the port. Downlinks in progress.");
 					}
 					else {
 						//Stop Receiver thread
@@ -749,9 +719,9 @@ namespace GSUI {
 
 						//Close the port if it is open
 						this->serialPort1->Close();
+						setEnableInputs(false);
 					}
 
-					setEnableInputs(false);
 				}
 				catch (...) {
 					logErr("An error occured when attempting to close the port.");
@@ -760,13 +730,13 @@ namespace GSUI {
 
 			//Thread for receiving data from the serialPort
 			private: System::Void backgroundWorker_Receiver_DoWork(System::Object^  sender, System::ComponentModel::DoWorkEventArgs^  e) {
-
+				
 				//Saving receiver thread ID to UI thread to enable for output to form's controls that are owned by the UIThread
 				int rcvThrdID = System::Threading::Thread::CurrentThread->ManagedThreadId;
 				backgroundWorker_Receiver->ReportProgress(10, rcvThrdID);
 				//Stalling for the receiveThreadID to be updated
 				System::Threading::Thread::CurrentThread->Sleep(100);
-
+				
 				//Check if serial port is open
 				if (!(this->serialPort1->IsOpen)) {
 					logErr("Could not start the receiver thread. The port is not open.");
@@ -831,11 +801,11 @@ namespace GSUI {
 				}
 				else if (e->ProgressPercentage == 4) {
 					//For the progressBar_downlink to be updated
-					downlinkProgressBarUpdate(safe_cast<int>(e->UserState));
+					downlinkProgressBarUpdate(e->UserState);
 				}
 				else if (e->ProgressPercentage == 5) {
 					//For the controls to be returned to normal for another request to be made
-					downlinkComplete(safe_cast<bool>(e->UserState));
+					downlinkComplete(safe_cast<uint16_t>(e->UserState));
 				}
 				else if (e->ProgressPercentage == 6) {
 					//For the UI thread to start the uplink backgroundWorker
@@ -847,7 +817,7 @@ namespace GSUI {
 				}
 				else if (e->ProgressPercentage == 8) {
 					//For the downlink controls to be disabled
-					downlinkStarting(e->UserState->ToString());
+					downlinkStarting(safe_cast<uint16_t>(e->UserState));
 				}
 			}
 
@@ -887,18 +857,23 @@ namespace GSUI {
 			}
 
 			//Update the value of progressBar_downlink
-			private: void downlinkProgressBarUpdate(int progressPercentage) {
+			private: void downlinkProgressBarUpdate(System::Object^ args) {
 				if (System::Threading::Thread::CurrentThread->ManagedThreadId == this->UIThreadID) {
-					if (progressPercentage > 100)
-						this->progressBar_downlink->Value = 100;
-					else if (progressPercentage < 0)
-						this->progressBar_downlink->Value = 0;
-					else
-						this->progressBar_downlink->Value = progressPercentage;
+					array <uint16_t>^ values = safe_cast< array <uint16_t>^ >(args);
+					int progressPercentage = values[0];
+					uint16_t transferID = values[1];
+					if (transferForms->count(transferID)){
+						if (progressPercentage > 100)
+							transferForms[transferID]->progressBar_downlink->Value = 100;
+						else if (progressPercentage < 0)
+							transferForms[transferID]->progressBar_downlink->Value = 0;
+						else 
+							transferForms[transferID]->progressBar_downlink->Value = progressPercentage;
+					}
 				}
 				else if (System::Threading::Thread::CurrentThread->ManagedThreadId == this->receiverThreadID) {
 					if (backgroundWorker_Receiver->IsBusy)
-						backgroundWorker_Receiver->ReportProgress(4, progressPercentage);
+						backgroundWorker_Receiver->ReportProgress(4, args);
 				}
 			}
 
@@ -1192,8 +1167,6 @@ namespace GSUI {
 					logErr("Please select a file to request for downlink.");
 					return;
 				}
-				
-				downlinkStarting(this->comboBox_downlinkFileName->Text);
 
 				std::vector<uint8_t> payload;
 				payload.push_back('T');
@@ -1208,59 +1181,43 @@ namespace GSUI {
 			}
 
 			//To update the downlink buttons.
-			private:  void downlinkStarting(System::String^ dlFileName) {
+			private:  void downlinkStarting(uint16_t tID) {
 				if (System::Threading::Thread::CurrentThread->ManagedThreadId == this->UIThreadID) {
 					//This part is necessary for automatic downlinks (started by the satellite)
-					if (!dlFileName->Equals(this->comboBox_downlinkFileName->Text)) {
-						log("AutoDL -> Satellite has started an automatic downlink.");
-						this->comboBox_downlinkFileName->Text = dlFileName;
+					System::String ^ fileToDownlink;
+					if (CommsNaSPUoN::incomingTransfers.count(tID)) {
+						fileToDownlink = gcnew System::String(CommsNaSPUoN::incomingTransfers[tID].fileName.c_str());
 					}
-					//Updating buttons
-					this->button_downlinkCancel->Visible = true;
-					this->button_downlinkCancel->Enabled = true;
-					this->button_downlinkRequest->Enabled = false;
-					this->comboBox_downlinkFileName->Enabled = false;
-					this->button_closePort->Enabled = false;
+					if ( !this->comboBox_downlinkFileName->Text->Equals( fileToDownlink ) ) {
+						log("AutoDL -> Satellite has started an automatic downlink.");
+						//this->comboBox_downlinkFileName->Text = fileToDownlink;
+					}
+
+					//Opening the new form to show the progress of the downlink
+					transferForms[tID] = gcnew IncomingTransfer;
+					transferForms[tID]->transferID = tID;
+					transferForms[tID]->textBox_transferID->Text = tID.ToString();
+					transferForms[tID]->textBox_filename->Text = fileToDownlink;
+					transferForms[tID]->form = this;
+					transferForms[tID]->Show();
 				}
 				else if (System::Threading::Thread::CurrentThread->ManagedThreadId == this->receiverThreadID) {
 					if (backgroundWorker_Receiver->IsBusy)
-						backgroundWorker_Receiver->ReportProgress(8, dlFileName);
+						backgroundWorker_Receiver->ReportProgress(8, tID);
 				}
 			}
 
-			//Cancel Downlink Button
-			private: System::Void button_downlinkCancel_Click(System::Object^  sender, System::EventArgs^  e) {
-				std::vector<uint8_t> payload;
-				payload.push_back('T');
-				payload.push_back('Z');
-				payload.push_back(0x00); //Delete specific transfer
-				payload.push_back(0x00); //Downlink (outgoing from the sat)
-				insertSixteenBitIntInEightBitVector(payload, payload.end(), this->currentDownlinkTransferID);
-				std::vector<uint8_t> satAddressVect;
-				insertThirtyTwoBitIntInEightBitVector(satAddressVect, satAddressVect.end(), (uint32_t)(this->satelliteAddress >> 32));
-				insertThirtyTwoBitIntInEightBitVector(satAddressVect, satAddressVect.end(), (uint32_t)(this->satelliteAddress));
-				sendRFPacket(satAddressVect, this->sixteenBitAddress, payload);
-
-				System::Threading::Thread::CurrentThread->Sleep(100); //Stalling to make sure the satellite is no longer sending data
-
-				cancelIncomingTransfer(this->currentDownlinkTransferID);
-
-				downlinkComplete(false);
-			}
-
-			//When the downlink is complete this function reenables controls for starting another downlink
-			private: void downlinkComplete(bool complete) {
+			//When the downlink is complete this function closes the downlink dialog
+			private: void downlinkComplete(uint16_t tID) {
 				if (System::Threading::Thread::CurrentThread->ManagedThreadId == this->UIThreadID) {
-					this->button_downlinkCancel->Enabled = false;
-					this->button_downlinkCancel->Visible = false;
-					this->button_downlinkRequest->Enabled = true;
-					this->comboBox_downlinkFileName->Enabled = true;
-					this->button_closePort->Enabled = true;
-					downlinkProgressBarUpdate((complete) ? 100 : 0);
+					if (transferForms->count(tID)) {
+						transferForms[tID]->Close();
+						transferForms->erase(tID);
+					}
 				}
 				else if (System::Threading::Thread::CurrentThread->ManagedThreadId == this->receiverThreadID) {
 					if (backgroundWorker_Receiver->IsBusy)
-						backgroundWorker_Receiver->ReportProgress(5, complete);
+						backgroundWorker_Receiver->ReportProgress(5, tID);
 				}
 			}
 
@@ -1317,5 +1274,38 @@ namespace GSUI {
 						backgroundWorker_Uplink->ReportProgress(5, complete);
 				}
 			}
+
+			//When the About button is clicked
+			private: System::Void button_about_Click(System::Object^  sender, System::EventArgs^  e) {
+				if (about == nullptr || !about->Visible) {
+					about = gcnew AboutDialog;
+					about->Show();
+				}
+			}
 };
+
+System::Void IncomingTransfer::IncomingTransfer_FormClosing(System::Object^  sender, System::Windows::Forms::FormClosingEventArgs^  e) {
+	uint16_t tID = this->transferID;
+	if (CommsNaSPUoN::incomingTransfers.count(tID)) {
+		std::vector<uint8_t> payload;
+		payload.push_back('T');
+		payload.push_back('Z');
+		payload.push_back(0x00); //Delete specific transfer
+		payload.push_back(0x00); //Downlink (outgoing from the sat)
+		form->insertSixteenBitIntInEightBitVector(payload, payload.end(), this->transferID);
+		std::vector<uint8_t> satAddressVect;
+		form->insertThirtyTwoBitIntInEightBitVector(satAddressVect, satAddressVect.end(), (uint32_t)(form->satelliteAddress >> 32));
+		form->insertThirtyTwoBitIntInEightBitVector(satAddressVect, satAddressVect.end(), (uint32_t)(form->satelliteAddress));
+		form->sendRFPacket(satAddressVect, form->sixteenBitAddress, payload);
+
+		System::Threading::Thread::CurrentThread->Sleep(100); //Stalling to make sure the satellite is no longer sending data
+
+		form->cancelIncomingTransfer(this->transferID);
+	}
+
+	if (form->transferForms->count(this->transferID)) {
+		form->transferForms->erase(this->transferID);
+	}
+}
+
 }

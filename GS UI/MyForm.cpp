@@ -11,6 +11,7 @@ using namespace System::Windows::Forms;
 
 [STAThreadAttribute]
 int main(array < String^ > ^ args) {
+	FreeConsole();
 	Application::EnableVisualStyles();
 	Application::SetCompatibleTextRenderingDefault(false);
 	GSUI::MyForm form;

@@ -136,13 +136,17 @@ std::vector< std::vector<uint8_t> > GSUI::MyForm::checkReceivedPacketForFramesXB
 }
 
 bool GSUI::MyForm::isRFPacketHighPriority(std::vector<uint8_t> frame) {
-	//Checks if a packet shuld be added to the resendVector
+	//Checks if a packet should be added to the resendVector
 	//High priotity packets include: TC RF packets, and nothing else (for now)
 	try {
 		if (commsXBeeNaSPUoN::legacyXBee) {
+			if (frame.size() < 10) //To avoid accessing outside vector size
+				return false;
 			return ((frame[8] == 'T') && ((frame[9] == 'C') || (frame[9] == 'B') || (frame[9] == 'I')));
 		}
 		else {
+			if (frame.size() < 19) //To avoid accessing outside vector size
+				return false;
 			return ((frame[17] == 'T') && ((frame[18] == 'C') || (frame[18] == 'B') || (frame[18] == 'I')));
 		}
 	}
@@ -152,10 +156,12 @@ bool GSUI::MyForm::isRFPacketHighPriority(std::vector<uint8_t> frame) {
 }
 
 std::vector<uint8_t> GSUI::MyForm::removeFrameFromSentFrames(std::vector<uint8_t> & responseFrame) {
+	std::vector<uint8_t> originalFrame;
+	if (responseFrame.size() < 5) //To avoid accessing outside vector size
+		return originalFrame;
 	uint8_t frameID = responseFrame[4];
 	if ((responseFrame[3] == TRANSMIT_STATUS) || (responseFrame[3] == EXTENDED_TRANSMIT_STATUS))
 		allowUplinkTransferToContinue(frameID);
-	std::vector<uint8_t> originalFrame;
 	if (commsXBeeNaSPUoN::sentFramesXB.count(frameID)) {
 		originalFrame = commsXBeeNaSPUoN::sentFramesXB[frameID];
 		commsXBeeNaSPUoN::sentFramesXB.erase(frameID);
@@ -177,10 +183,14 @@ void GSUI::MyForm::processReceivedPacketXB(std::vector<uint8_t> & rx) {
 	//Checking for corresponding frameID if the frame is a response frame
 	for (unsigned int i = 0; i < frames.size(); i++) {
 		correspondingRequest.clear();
+		if (frames[i].size() < 4) //To avoid accessing outside vector size
+			continue;
 		switch (frames[i][3]) {
 		case MODEM_STATUS:
 		{
 			std::string statusMsg;
+			if (frames[i].size() < 5) //To avoid accessing outside vector size
+				continue;
 			switch (frames[i][4]) {
 			case 0x00:
 				statusMsg = "Hardware reset or power up";
@@ -227,6 +237,8 @@ void GSUI::MyForm::processReceivedPacketXB(std::vector<uint8_t> & rx) {
 		case TRANSMIT_STATUS:
 		{
 			correspondingRequest = removeFrameFromSentFrames(frames[i]);
+			if (frames[i].size() < 6) //To avoid accessing outside vector size
+				continue;
 			if (frames[i][5] != 0x00) {
 				if (isRFPacketHighPriority(correspondingRequest)) {
 					msclr::lock lck(framesToResendMutex);
@@ -282,6 +294,8 @@ void GSUI::MyForm::processReceivedPacketXB(std::vector<uint8_t> & rx) {
 		case EXTENDED_TRANSMIT_STATUS:
 		{
 			correspondingRequest = removeFrameFromSentFrames(frames[i]);
+			if (frames[i].size() < 9) //To avoid accessing outside vector size
+				continue;
 			//Bytes 5&6 have the 16 bit destination address
 			std::string retryCount = std::to_string(frames[1][7]) + " retries ";
 			if (frames[i][8] != 0x00) {
@@ -324,6 +338,8 @@ void GSUI::MyForm::processReceivedPacketXB(std::vector<uint8_t> & rx) {
 		}
 		case SIXTEEN_BIT_RECEIVE_PACKET:
 		{
+			if (frames[i].size() < 9) //To avoid accessing outside vector size
+				continue;
 			std::vector<uint8_t> sixtyFourBitAddressVector({ 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF });
 			std::vector<uint8_t> sixteenBitAddressVector(frames[i].begin() + 4, frames[i].begin() + 6);
 			uint16_t sixteenBitAddress = makeSixteenBitInt(sixteenBitAddressVector);
@@ -336,6 +352,8 @@ void GSUI::MyForm::processReceivedPacketXB(std::vector<uint8_t> & rx) {
 		}
 		case RECEIVE_PACKET:
 		{
+			if (frames[i].size() < 16) //To avoid accessing outside vector size
+				continue;
 			std::vector<uint8_t> sixtyFourBitAddressVector(frames[i].begin() + 4, frames[i].begin() + 12);
 			std::vector<uint8_t> sixteenBitAddressVector(frames[i].begin() + 12, frames[i].begin() + 14);
 			uint16_t sixteenBitAddress = makeSixteenBitInt(sixteenBitAddressVector);
@@ -346,6 +364,8 @@ void GSUI::MyForm::processReceivedPacketXB(std::vector<uint8_t> & rx) {
 		}
 		case EXPLICIT_RECEIVE_INDICATOR:
 		{
+			if (frames[i].size() < 22) //To avoid accessing outside vector size
+				continue;
 			std::vector<uint8_t> sixtyFourBitAddressVector(frames[i].begin() + 4, frames[i].begin() + 12);
 			std::vector<uint8_t> sixteenBitAddressVector(frames[i].begin() + 12, frames[i].begin() + 14);
 			uint16_t sixteenBitAddress = makeSixteenBitInt(sixteenBitAddressVector);
@@ -358,6 +378,8 @@ void GSUI::MyForm::processReceivedPacketXB(std::vector<uint8_t> & rx) {
 		}
 		default:
 			{
+				if (frames[i].size() < 4) //To avoid accessing outside vector size
+					continue;
 				std::string packet = vectorToHexString(frames[i]);
 				std::string frameType = integerToHexString(frames[i][3], 2);
 				log("XBComms -> Got an interesting packet from XBee {Frame Type " + frameType + "}:" + packet);
