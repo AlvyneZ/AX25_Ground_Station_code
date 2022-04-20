@@ -140,6 +140,7 @@
     <ClCompile Include="AboutDialog.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AX25Communication.h" />
     <ClInclude Include="bitManipulation.h" />
     <ClInclude Include="CommunicationsHandler.h" />
     <ClInclude Include="fileOperations.h" />

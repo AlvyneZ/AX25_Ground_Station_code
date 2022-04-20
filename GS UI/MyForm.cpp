@@ -2,7 +2,7 @@
 
 #include "Logger.h"
 #include "fileOperations.h"
-#include "XBeeCommunication.h"
+#include "AX25Communication.h"
 #include "bitManipulation.h"
 #include "CommunicationsHandler.h"
 

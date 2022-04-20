@@ -103,7 +103,7 @@ std::vector<uint8_t> GSUI::MyForm::getPacket(FileTransfer * ft, uint32_t index) 
 	}
 }
 
-bool GSUI::MyForm::transferComplete(uint16_t tID, std::vector<uint8_t> XBsixtyFourBitAddress, uint16_t XBsixteenBitAddress) {
+bool GSUI::MyForm::transferComplete(uint16_t tID, std::vector<uint8_t> AX25SatCallsignSSID) {
 	///log("Transfer Complete Called with: rcv=" + std::to_string(ft->packetsReceived) + " and expctd=" + std::to_string(ft->expectedPackets));
 	if ((CommsNaSPUoN::incomingTransfers[tID].packetsReceived) >= (CommsNaSPUoN::incomingTransfers[tID].expectedPackets)) {
 		std::string outputPath = getDownlinkSavelocation();
@@ -218,7 +218,7 @@ void GSUI::MyForm::allowUplinkTransferToContinue(uint8_t frameID) {
 }
 
 
-void GSUI::MyForm::sendRFPacket(std::vector<uint8_t> XBsixtyFourBitAddress, uint16_t XBsixteenBitAddress, std::vector<uint8_t> & packet) {
+void GSUI::MyForm::sendRFPacket(std::vector<uint8_t> AX25SatCallsignSSID, std::vector<uint8_t> & packet) {
 	//This function sends an RF packet with either or both the XBee and/or StenSat
 	if (packet.size() > 1) {
 		sendRFPacketXB(XBsixtyFourBitAddress, XBsixteenBitAddress, packet);
@@ -228,7 +228,7 @@ void GSUI::MyForm::sendRFPacket(std::vector<uint8_t> XBsixtyFourBitAddress, uint
 	}
 }
 
-void GSUI::MyForm::uplinkTransfer(std::vector<uint8_t> XBsixtyFourBitAddress, uint16_t XBsixteenBitAddress, uint16_t tID, System::ComponentModel::DoWorkEventArgs^  e) {
+void GSUI::MyForm::uplinkTransfer(std::vector<uint8_t> AX25SatCallsignSSID, uint16_t tID, System::ComponentModel::DoWorkEventArgs^  e) {
 	log("CommHndl -> Beginning outgoing transfer of tID " + std::to_string(tID) + ".");
 	std::vector<uint8_t> pck;
 	uint32_t expectedPackets = CommsNaSPUoN::outgoingTransfers[tID].expectedPackets;
@@ -236,7 +236,7 @@ void GSUI::MyForm::uplinkTransfer(std::vector<uint8_t> XBsixtyFourBitAddress, ui
 	for (uint32_t i = 0; i < expectedPackets; i++) {
 		pck = getPacket(&(CommsNaSPUoN::outgoingTransfers[tID]), i);
 		msclr::lock lck(this->uplinkSendNextMutex);
-		sendRFPacket(XBsixtyFourBitAddress, XBsixteenBitAddress, pck);
+		sendRFPacket(AX25SatCallsignSSID, pck);
 		
 		lastFrameID = pck[4];
 		CommsNaSPUoN::uplinkSendNext[lastFrameID] = false;
@@ -262,11 +262,11 @@ void GSUI::MyForm::uplinkTransfer(std::vector<uint8_t> XBsixtyFourBitAddress, ui
 	pck.push_back('C');
 	insertSixteenBitIntInEightBitVector(pck, pck.end(), tID);
 	pck.push_back(0x01);
-	sendRFPacket(XBsixtyFourBitAddress, XBsixteenBitAddress, pck);
+	sendRFPacket(AX25SatCallsignSSID, pck);
 	uplinkProgressBarUpdate(100);
 }
 
-void GSUI::MyForm::downlinkPartRequestTransfer(std::vector<uint8_t> XBsixtyFourBitAddress, uint16_t XBsixteenBitAddress, uint16_t tID, System::ComponentModel::DoWorkEventArgs^  e) {
+void GSUI::MyForm::downlinkPartRequestTransfer(std::vector<uint8_t> AX25SatCallsignSSID, uint16_t tID, System::ComponentModel::DoWorkEventArgs^  e) {
 
 	uint32_t expectedPackets = CommsNaSPUoN::incomingTransfers[tID].expectedPackets;
 	std::vector<uint8_t> pck;
@@ -284,7 +284,7 @@ void GSUI::MyForm::downlinkPartRequestTransfer(std::vector<uint8_t> XBsixtyFourB
 			insertSixteenBitIntInEightBitVector(pck, pck.end(), tID);
 			insertThirtyTwoBitIntInEightBitVector(pck, pck.end(), i);
 			msclr::lock lck(this->uplinkSendNextMutex);
-			sendRFPacket(XBsixtyFourBitAddress, XBsixteenBitAddress, pck);
+			sendRFPacket(AX25SatCallsignSSID, pck);
 
 			lastFrameID = pck[4];
 			CommsNaSPUoN::uplinkSendNext[lastFrameID] = false;
@@ -308,10 +308,10 @@ void GSUI::MyForm::downlinkPartRequestTransfer(std::vector<uint8_t> XBsixtyFourB
 	pck.push_back('C');
 	insertSixteenBitIntInEightBitVector(pck, pck.end(), tID);
 	pck.push_back(0x02);
-	sendRFPacket(XBsixtyFourBitAddress, XBsixteenBitAddress, pck);
+	sendRFPacket(AX25SatCallsignSSID, pck);
 }
 
-void GSUI::MyForm::processIncomingPayload(std::vector<uint8_t> XBsixtyFourBitAddress, uint16_t XBsixteenBitAddress, std::vector<uint8_t> & payload) {
+void GSUI::MyForm::processIncomingPayload(std::vector<uint8_t> AX25SatCallsignSSID, std::vector<uint8_t> & payload) {
 	try {
 		//To prevent the receive thread closing because of an error in processing a payload
 		if (payload.size() < 2) //To avoid accessing outside vector size
@@ -327,7 +327,7 @@ void GSUI::MyForm::processIncomingPayload(std::vector<uint8_t> XBsixtyFourBitAdd
 
 					if (newFileTransfer.ready) {
 						CommsNaSPUoN::outgoingTransfers[newFileTransfer.transferID] = newFileTransfer;
-						sendRFPacket(XBsixtyFourBitAddress, XBsixteenBitAddress, getInitializationPacket(&newFileTransfer));
+						sendRFPacket(AX25SatCallsignSSID, getInitializationPacket(&newFileTransfer));
 						log("CommHndl -> Transfer request received and accepted.");
 					}
 				}
@@ -351,7 +351,7 @@ void GSUI::MyForm::processIncomingPayload(std::vector<uint8_t> XBsixtyFourBitAdd
 
 					if (CommsNaSPUoN::outgoingTransfers.count(tID)) {
 						uint32_t pckIndex = getThirtyTwoBitIntFromEightBitVector(payload, 5);
-						sendRFPacket(XBsixtyFourBitAddress, XBsixteenBitAddress, getPacket(&(CommsNaSPUoN::outgoingTransfers[tID]), pckIndex));
+						sendRFPacket(AX25SatCallsignSSID, getPacket(&(CommsNaSPUoN::outgoingTransfers[tID]), pckIndex));
 					}
 					else {
 						logErr("CommHndl -> Invalid Request for a packet transfer for non-existent tID " + std::to_string(tID) + ".");
@@ -388,7 +388,7 @@ void GSUI::MyForm::processIncomingPayload(std::vector<uint8_t> XBsixtyFourBitAdd
 					log("CommHndl -> Intitializer packet for downlink transfer tID: " + std::to_string(tID) + " rejected.");
 				}
 
-				sendRFPacket(XBsixtyFourBitAddress, XBsixteenBitAddress, pck);
+				sendRFPacket(AX25SatCallsignSSID, pck);
 			}
 			else if (payload[1] == 'B') {
 				//Request to begin transfering packets of a file
@@ -438,7 +438,7 @@ void GSUI::MyForm::processIncomingPayload(std::vector<uint8_t> XBsixtyFourBitAdd
 					return;
 				uint16_t tID = getSixteenBitIntFromEightBitVector(payload, 2);
 				if ((payload[4] == 0x01) && (CommsNaSPUoN::incomingTransfers.count(tID))) {
-					bool complete = transferComplete(tID, XBsixtyFourBitAddress, XBsixteenBitAddress);
+					bool complete = transferComplete(tID, AX25SatCallsignSSID);
 					if (complete) {
 						CommsNaSPUoN::incomingTransfers.erase(tID);
 						downlinkComplete(tID);
@@ -447,7 +447,7 @@ void GSUI::MyForm::processIncomingPayload(std::vector<uint8_t> XBsixtyFourBitAdd
 						pck.push_back('C');
 						insertSixteenBitIntInEightBitVector(pck, pck.end(), tID);
 						pck.push_back(0x00);
-						sendRFPacket(XBsixtyFourBitAddress, XBsixteenBitAddress, pck);
+						sendRFPacket(AX25SatCallsignSSID, pck);
 						log("CommHndl -> Successfully Completed incoming transfer of tID " + std::to_string(tID) + ".");
 					}
 				}
@@ -461,7 +461,7 @@ void GSUI::MyForm::processIncomingPayload(std::vector<uint8_t> XBsixtyFourBitAdd
 					pck.push_back('C');
 					insertSixteenBitIntInEightBitVector(pck, pck.end(), tID);
 					pck.push_back(0x01);
-					sendRFPacket(XBsixtyFourBitAddress, XBsixteenBitAddress, pck);
+					sendRFPacket(AX25SatCallsignSSID, pck);
 				}
 				else {
 					std::string outOrIn = (payload[4] == 0x01) ? " Incoming " : ((payload[4] == 0x00) || (payload[4] == 0x02)) ? " Outgoing " : " Direction Unknown ";
@@ -607,7 +607,7 @@ void GSUI::MyForm::processIncomingPayload(std::vector<uint8_t> XBsixtyFourBitAdd
 			payload.push_back((uint8_t)(localTime->tm_min));
 			payload.push_back((uint8_t)(localTime->tm_sec));
 
-			sendRFPacket(XBsixtyFourBitAddress, XBsixteenBitAddress, payload);
+			sendRFPacket(AX25SatCallsignSSID, payload);
 
 			log("CommHndl -> Sent time to the satellite.");
 		}
@@ -672,7 +672,7 @@ void GSUI::MyForm::cancelIncomingTransfer(uint16_t tID) {
 	}
 }
 
-void GSUI::MyForm::newOutgoingTransfer(std::vector<uint8_t> XBsixtyFourBitAddress, uint16_t XBsixteenBitAddress, std::string fileNameWithPath) {
+void GSUI::MyForm::newOutgoingTransfer(std::vector<uint8_t> AX25SatCallsignSSID, std::string fileNameWithPath) {
 	FileTransfer ft;
 
 	std::string fileName = "";
@@ -690,7 +690,7 @@ void GSUI::MyForm::newOutgoingTransfer(std::vector<uint8_t> XBsixtyFourBitAddres
 
 		CommsNaSPUoN::outgoingTransfers[ft.transferID] = ft;
 		this->currentUplinkTransferID = ft.transferID;
-		sendRFPacket(XBsixtyFourBitAddress, XBsixteenBitAddress, getInitializationPacket(&ft));
+		sendRFPacket(AX25SatCallsignSSID, getInitializationPacket(&ft));
 		log("CommHndl -> Transfer initialization packet sent.");
 	}
 	else {
@@ -726,11 +726,7 @@ void GSUI::MyForm::cancelAllTransfers() {
 	payload.push_back('Z');
 	payload.push_back(0xFF); //Delete all incomplete transfers
 
-	std::vector<uint8_t> satAddressVect;
-	insertThirtyTwoBitIntInEightBitVector(satAddressVect, satAddressVect.end(), (uint32_t)(this->satelliteAddress >> 32));
-	insertThirtyTwoBitIntInEightBitVector(satAddressVect, satAddressVect.end(), (uint32_t)(this->satelliteAddress));
-
-	sendRFPacket(satAddressVect, this->sixteenBitAddress, payload);
+	sendRFPacket(this->getSatelliteCallsignSSID(), payload);
 
 	for (std::map<uint16_t, FileTransfer>::iterator it = CommsNaSPUoN::incomingTransfers.begin(); it != CommsNaSPUoN::incomingTransfers.end(); it++) {
 		CommsNaSPUoN::incomingTransfers.erase(it);

@@ -1,0 +1,233 @@
+/*
+   Author: AlvyneZ
+
+   Code for NaSPUoN AX25 KISS TNC communication
+*/
+
+
+#ifndef AX25_COMMUNICATION_H
+#define AX25_COMMUNICATION_H
+
+
+#include <vector>
+#include <string>
+
+
+#define KISS_FEND  0xC0
+#define KISS_FESC  0xDB
+#define KISS_TFEND 0xDC
+#define KISS_TFESC 0xDD
+
+#define KISS_TYPE_DATA 0x00
+#define KISS_TYPE_CMD  0x06
+
+namespace KISS {
+	std::vector<uint8_t> kissBuffer;
+}
+
+
+
+//Processing of received frames from the serial port
+void GSUI::MyForm::processReceivedPacketAX25(std::vector<uint8_t> & packet) {
+	//log("///=> " + vectorToHexString(packet));
+	std::vector<std::vector<uint8_t>> receivedFrames = kissCombineFrame(packet);
+	for (int i = 0; i < receivedFrames.size(); i++) {
+		kissDecapsulate(receivedFrames[i]);
+		//log(vectorToHexString(receivedFrames[i]));
+	}
+}
+
+
+/*
+ * Function to combine received bits since frames may come one bit at a time,
+ * and check if full frames have been received
+ * Then return the frames with Transposed FESC and FEND returned to normal
+ * and delimiting FEND frames removed
+*/
+std::vector<std::vector<uint8_t>> GSUI::MyForm::kissCombineFrame(std::vector<uint8_t> & receivedMsg) {
+	int start = KISS::kissBuffer.size();
+	int end = start + receivedMsg.size();
+	//Add the whole of the received message to the buffer
+	KISS::kissBuffer.insert(KISS::kissBuffer.end(), receivedMsg.begin(), receivedMsg.end());
+
+	std::vector<std::vector<uint8_t>> receivedFrames;
+	int last = 0;
+	std::vector<uint8_t> temp;
+	//Check through the original received message for a FEND Flag
+	for (int i = start; i < end; i++) {
+		if (KISS::kissBuffer[i] == KISS_FEND) {
+			//Clearing temp to save new frame
+			temp.clear();
+			//Copy the frame into receivedMsg ignoring the FEND flag at the end
+			temp.insert(temp.begin(), KISS::kissBuffer.begin() + last,
+				KISS::kissBuffer.begin() + i);
+			//Setting the end of the last frame tht was taken
+			last = i + 1;
+			//Removing FEND flags from the frame and transposing TFEND and TFESC back
+			for (int j = temp.size() - 1; j >= 0; j--) {
+				if (temp[j] == KISS_FEND)
+					temp.erase(temp.begin() + j);
+				else if (temp[j] == KISS_FESC) {
+					if (temp[j + 1] == KISS_TFEND)
+						temp[j] = KISS_FEND;
+					else if (temp[j + 1] == KISS_TFESC)
+						temp[j] = KISS_FESC;
+					else {
+						logErr("AX25 -> KISS packet discarded due to transposing error: " + vectorToHexString(temp));
+						temp.clear();
+						break;
+					}
+					temp.erase(temp.begin() + j + 1);
+				}
+			}
+			if (!temp.empty())
+				receivedFrames.push_back(temp);
+		}
+	}
+	KISS::kissBuffer.erase(KISS::kissBuffer.begin(), KISS::kissBuffer.begin() + last);
+	return receivedFrames;
+}
+
+
+/*
+ * Function to check kiss packet data type and TNCPort.
+*/
+void GSUI::MyForm::kissDecapsulate(std::vector<uint8_t> & receivedFrame) {
+	//If the reseived packet is from the wrong TNCPort, drop it
+	if ((receivedFrame[0] & 0xF0) != this->TNCPort)
+		return;
+	uint8_t kissPacketType = receivedFrame[0] & 0x0F;
+	receivedFrame.erase(receivedFrame.begin());
+	switch (kissPacketType) {
+	case KISS_TYPE_DATA:
+		std::vector<uint8_t> AX25SatCallsignSSID = ax25Decapsulate(receivedFrame);
+		logReceived("=> MSG: " + msg);
+		break;
+	case KISS_TYPE_CMD:
+		std::string cmd(receivedFrame.begin(), receivedFrame.end());
+		logReceived("=> CMD: " + cmd);
+		break;
+	}
+}
+
+
+/*
+ * Function to add data type and TNCPort to kiss frame
+ * It also adds FEND flags and transposes FENDs and FESCs in the frame
+*/
+void GSUI::MyForm::kissEncapsulate(bool command, std::vector<uint8_t> & outgoingMsg) {
+	if (command) {
+		outgoingMsg.insert(outgoingMsg.begin(), (this->TNCPort | KISS_TYPE_CMD));
+	}
+	else {
+		outgoingMsg.insert(outgoingMsg.begin(), (this->TNCPort | KISS_TYPE_DATA));
+	}
+	kissTranspose(outgoingMsg);
+	outgoingMsg.insert(outgoingMsg.begin(), KISS_FEND);
+	outgoingMsg.insert(outgoingMsg.end(), KISS_FEND);
+}
+
+
+/*
+ * Function to transpose FEND and FESC to FESC-TFEND and FESC-TFESC respectively
+*/
+void GSUI::MyForm::kissTranspose(std::vector<uint8_t> & outgoingMsg) {
+	for (int i = outgoingMsg.size() - 1; i >= 0; i--) {
+		if (outgoingMsg[i] == KISS_FEND) {
+			outgoingMsg[i] = KISS_TFEND;
+			outgoingMsg.insert(outgoingMsg.begin() + i, KISS_FESC);
+		}
+		else if (outgoingMsg[i] == KISS_FESC) {
+			outgoingMsg[i] = KISS_TFESC;
+			outgoingMsg.insert(outgoingMsg.begin() + i, KISS_FESC);
+		}
+	}
+}
+
+
+
+
+/*
+	This AX.25 UI implementation has been written considering the following:
+		Addition of AX.25 flags (0x7E) is done by the TNC
+		Bit Stuffing to avoid the occurence of more than 5 consecutive 1's
+			is also done by the TNC
+		There are no repeaters to be passed through by the frames
+		The Frame Check Sequence calculation is done by the TNC
+*/
+
+
+#define AX25_UI_CONTROL		0x03
+#define AX25_NO_PROT_PID	0xF0
+#define AX25_SSID_PREFIX	0x30
+
+std::vector<uint8_t> GSUI::MyForm::ax25Decapsulate(std::vector<uint8_t> & kissdecappedMsg) {
+	std::vector<uint8_t> ret;
+	//Getting the index of the first byte of the source in the address field
+	int sourceAddress = 0;
+	do {
+		sourceAddress += 7;
+		if ((sourceAddress + 6) >= kissdecappedMsg.size()) {
+			logErr("AX25 -> Error (source address) when performing AX.25 decapsulation on message: " + vectorToHexString(kissdecappedMsg));
+			return ret;
+		}
+	} while (!(kissdecappedMsg[sourceAddress + 6] & 0x01));
+	//Shifting the bytes in the address field right
+	for (int i = 0; i < (sourceAddress + 7); i++) {
+		kissdecappedMsg[i] >>= 1;
+	}
+	//Getting the destination and source addresses
+	std::vector<uint8_t> msgDestination(kissdecappedMsg.begin(), kissdecappedMsg.begin() + 6);
+	uint8_t msgDestinationSSID = kissdecappedMsg[6] & 0x0F;
+	std::vector<uint8_t> msgSource(kissdecappedMsg.begin() + sourceAddress, kissdecappedMsg.begin() + sourceAddress + 6);
+	uint8_t msgSourceSSID = kissdecappedMsg[sourceAddress + 6] & 0x0F;
+	//Removing spaces from addresses
+	for (int i = (msgDestination.size() - 1); i >= 0; i--) {
+		if (msgDestination[i] == ' ') msgDestination.erase(msgDestination.begin() + i);
+	}
+	for (int i = (msgSource.size() - 1); i >= 0; i--) {
+		if (msgSource[i] == ' ') msgSource.erase(msgSource.begin() + i);
+	}
+
+	//If message is not meant for the ground station address, drop it
+
+
+	//Getting the actual message by removing address field, control field and protocol field
+	kissdecappedMsg.erase(kissdecappedMsg.begin(), kissdecappedMsg.begin() + sourceAddress + 9);
+	//std::vector<uint8_t> msg(kissdecappedMsg.begin() + sourceAddress + 9, kissdecappedMsg.end());
+	return msgSource + "[" + integerToHexString(msgSourceSSID, 1) + "]->" +
+		msgDestination + "[" + integerToHexString(msgDestinationSSID, 1) + "]: " + msg;
+}
+
+void GSUI::MyForm::ax25Encapsulate(std::vector<uint8_t> AX25SatCallsignSSID, std::vector<uint8_t> & outgoingMsg) {
+	outgoingMsg.insert(outgoingMsg.begin(), AX25_NO_PROT_PID);
+	outgoingMsg.insert(outgoingMsg.begin(), AX25_UI_CONTROL);
+
+	std::vector<uint8_t> source = this->getGroundCallsignSSID();
+	source.pop_back();
+	while (source.size() < 6) source.push_back(' ');
+	source.push_back(this->groundSSID | AX25_SSID_PREFIX);
+	for (int i = 0; i < source.size(); i++) {
+		source[i] <<= 1;
+	}
+	source[6] |= 0x01;
+	outgoingMsg.insert(outgoingMsg.begin(), source.begin(), source.end());
+
+	std::vector<uint8_t> dest(AX25SatCallsignSSID.begin(), AX25SatCallsignSSID.end()-1);
+	while (dest.size() < 6) dest.push_back(' ');
+	dest.push_back(AX25SatCallsignSSID[AX25SatCallsignSSID.size()-1] | AX25_SSID_PREFIX);
+	for (int i = 0; i < dest.size(); i++) {
+		dest[i] <<= 1;
+	}
+	outgoingMsg.insert(outgoingMsg.begin(), dest.begin(), dest.end());
+}
+
+
+void GSUI::MyForm::sendRFPacketAX25(std::vector<uint8_t> AX25SatCallsignSSID, std::vector<uint8_t> & packet) {
+	ax25Encapsulate(AX25SatCallsignSSID, packet);
+	kissEncapsulate(false, packet);
+	sendSerial(packet);
+}
+
+
+#endif

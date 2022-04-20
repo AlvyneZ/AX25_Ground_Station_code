@@ -395,7 +395,7 @@ void GSUI::MyForm::sendFrameXB(std::vector<uint8_t> & frame, int rightPadding) {
 	commsXBeeNaSPUoN::sentFramesXB.insert(std::make_pair(frame[4], frame));
 	if (rightPadding > 0)
 		frame.resize(frame.size() + rightPadding, 0x00);
-	sendSerialXB(frame);
+	sendSerial(frame);
 }
 
 void GSUI::MyForm::sendRFPacketXB(std::vector<uint8_t> sixtyFourBitAddress, uint16_t sixteenBitAddress, std::vector<uint8_t> & packet) {
