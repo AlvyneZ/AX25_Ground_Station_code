@@ -21,8 +21,12 @@
 #define KISS_TYPE_DATA 0x00
 #define KISS_TYPE_CMD  0x06
 
+#define KISS_TNC_BUFFER_LIMIT 16384
+
 namespace KISS {
-	std::vector<uint8_t> kissBuffer;
+	std::vector<uint8_t> kissInBuffer;
+	std::vector< std::vector<uint8_t> > kissOutBuffer;
+	uint64_t kissTNCBufferSize;
 }
 
 
@@ -45,22 +49,22 @@ void GSUI::MyForm::processReceivedPacketAX25(std::vector<uint8_t> & packet) {
  * and delimiting FEND frames removed
 */
 std::vector<std::vector<uint8_t>> GSUI::MyForm::kissCombineFrame(std::vector<uint8_t> & receivedMsg) {
-	int start = KISS::kissBuffer.size();
+	int start = KISS::kissInBuffer.size();
 	int end = start + receivedMsg.size();
 	//Add the whole of the received message to the buffer
-	KISS::kissBuffer.insert(KISS::kissBuffer.end(), receivedMsg.begin(), receivedMsg.end());
+	KISS::kissInBuffer.insert(KISS::kissInBuffer.end(), receivedMsg.begin(), receivedMsg.end());
 
 	std::vector<std::vector<uint8_t>> receivedFrames;
 	int last = 0;
 	std::vector<uint8_t> temp;
 	//Check through the original received message for a FEND Flag
 	for (int i = start; i < end; i++) {
-		if (KISS::kissBuffer[i] == KISS_FEND) {
+		if (KISS::kissInBuffer[i] == KISS_FEND) {
 			//Clearing temp to save new frame
 			temp.clear();
 			//Copy the frame into receivedMsg ignoring the FEND flag at the end
-			temp.insert(temp.begin(), KISS::kissBuffer.begin() + last,
-				KISS::kissBuffer.begin() + i);
+			temp.insert(temp.begin(), KISS::kissInBuffer.begin() + last,
+				KISS::kissInBuffer.begin() + i);
 			//Setting the end of the last frame tht was taken
 			last = i + 1;
 			//Removing FEND flags from the frame and transposing TFEND and TFESC back
@@ -84,7 +88,7 @@ std::vector<std::vector<uint8_t>> GSUI::MyForm::kissCombineFrame(std::vector<uin
 				receivedFrames.push_back(temp);
 		}
 	}
-	KISS::kissBuffer.erase(KISS::kissBuffer.begin(), KISS::kissBuffer.begin() + last);
+	KISS::kissInBuffer.erase(KISS::kissInBuffer.begin(), KISS::kissInBuffer.begin() + last);
 	return receivedFrames;
 }
 
@@ -98,14 +102,29 @@ void GSUI::MyForm::kissDecapsulate(std::vector<uint8_t> & receivedFrame) {
 		return;
 	uint8_t kissPacketType = receivedFrame[0] & 0x0F;
 	receivedFrame.erase(receivedFrame.begin());
+
+	std::vector<uint8_t> AX25SatCallsignSSID;
+	int temp;
 	switch (kissPacketType) {
 	case KISS_TYPE_DATA:
-		std::vector<uint8_t> AX25SatCallsignSSID = ax25Decapsulate(receivedFrame);
-		logReceived("=> MSG: " + msg);
+		AX25SatCallsignSSID = ax25Decapsulate(receivedFrame);
+		processIncomingPayload(AX25SatCallsignSSID, receivedFrame);
 		break;
 	case KISS_TYPE_CMD:
-		std::string cmd(receivedFrame.begin(), receivedFrame.end());
-		logReceived("=> CMD: " + cmd);
+		//To refresh the KISS TNC Buffer Used Size
+		if (receivedFrame.size() > 6) {
+			if ((receivedFrame[0] == 'T') && (receivedFrame[1] == 'X') && (receivedFrame[2] == 'B') &&
+			(receivedFrame[3] == 'U') && (receivedFrame[4] == 'F') && (receivedFrame[5] == ':')) {
+				KISS::kissTNCBufferSize = 0;
+				for (int i = 6; i < receivedFrame.size(); i++) {
+					temp = receivedFrame[i] - '0';
+					if ((temp < 10) && (temp >= 0)) {
+						KISS::kissTNCBufferSize *= 10;
+						KISS::kissTNCBufferSize += temp;
+					}
+				}
+			}
+		}
 		break;
 	}
 }
@@ -190,13 +209,23 @@ std::vector<uint8_t> GSUI::MyForm::ax25Decapsulate(std::vector<uint8_t> & kissde
 	}
 
 	//If message is not meant for the ground station address, drop it
-
+	std::vector<uint8_t> groundCallsign = this->getGroundCallsignSSID();
+	if ((msgDestination.size() + 1) != groundCallsign.size())
+		return ret;
+	for (int i = 0; i < msgDestination.size(); i++) {
+		if (msgDestination[i] != groundCallsign[i])
+			return ret;
+	}
+	if (msgDestinationSSID != groundCallsign[groundCallsign.size() - 1])
+		return ret;
 
 	//Getting the actual message by removing address field, control field and protocol field
 	kissdecappedMsg.erase(kissdecappedMsg.begin(), kissdecappedMsg.begin() + sourceAddress + 9);
-	//std::vector<uint8_t> msg(kissdecappedMsg.begin() + sourceAddress + 9, kissdecappedMsg.end());
-	return msgSource + "[" + integerToHexString(msgSourceSSID, 1) + "]->" +
-		msgDestination + "[" + integerToHexString(msgDestinationSSID, 1) + "]: " + msg;
+
+	//Returning the source(satellite address)
+	ret.insert(ret.begin(), msgSource.begin(), msgSource.end());
+	ret.push_back(msgSourceSSID);
+	return ret;
 }
 
 void GSUI::MyForm::ax25Encapsulate(std::vector<uint8_t> AX25SatCallsignSSID, std::vector<uint8_t> & outgoingMsg) {
@@ -226,8 +255,41 @@ void GSUI::MyForm::ax25Encapsulate(std::vector<uint8_t> AX25SatCallsignSSID, std
 void GSUI::MyForm::sendRFPacketAX25(std::vector<uint8_t> AX25SatCallsignSSID, std::vector<uint8_t> & packet) {
 	ax25Encapsulate(AX25SatCallsignSSID, packet);
 	kissEncapsulate(false, packet);
-	sendSerial(packet);
+	
+	//Requesting the TNC to send its buffer used up space
+	checkKissTNCBufferSize();
+
+	//Adding the packet to send to the output buffer
+	msclr::lock lck(kissOutMutex);
+	KISS::kissOutBuffer.push_back(packet);
+	lck.release();
 }
+
+
+void GSUI::MyForm::checkKissTNCBufferSize() {
+	std::string cmd = "TXBUF:";
+	std::vector<uint8_t> outgoingCmd(cmd.begin(), cmd.end());
+	kissEncapsulate(true, outgoingCmd);
+	sendSerial(outgoingCmd);
+}
+
+
+void GSUI::MyForm::sendAX25Frames() {
+	System::Threading::Thread::CurrentThread->Sleep(100);
+
+	msclr::lock lck(kissOutMutex);
+	int index = 0;
+	for (; index < KISS::kissOutBuffer.size(); index++) {
+		if (KISS::kissTNCBufferSize >= KISS_TNC_BUFFER_LIMIT) {
+			break;
+		}
+		sendSerial(KISS::kissOutBuffer[index]);
+		checkKissTNCBufferSize();
+	}
+	KISS::kissOutBuffer.erase(KISS::kissOutBuffer.begin(), KISS::kissOutBuffer.begin() + index);
+	lck.release();
+}
+
 
 
 #endif

@@ -221,7 +221,7 @@ void GSUI::MyForm::allowUplinkTransferToContinue(uint8_t frameID) {
 void GSUI::MyForm::sendRFPacket(std::vector<uint8_t> AX25SatCallsignSSID, std::vector<uint8_t> & packet) {
 	//This function sends an RF packet with either or both the XBee and/or StenSat
 	if (packet.size() > 1) {
-		sendRFPacketXB(XBsixtyFourBitAddress, XBsixteenBitAddress, packet);
+		sendRFPacketAX25(AX25SatCallsignSSID, packet);
 	}
 	else {
 		logErr("CommHndl -> Attempt to send an Rf packet of size: " + std::to_string(packet.size()) + " denied.");

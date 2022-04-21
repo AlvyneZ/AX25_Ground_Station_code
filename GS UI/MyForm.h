@@ -46,7 +46,7 @@ namespace GSUI {
 			this->frameIDMutex = gcnew System::Object();
 			this->transferIDMutex = gcnew System::Object();
 			this->uplinkSendNextMutex = gcnew System::Object();
-			this->framesToResendMutex = gcnew System::Object();
+			this->kissOutMutex = gcnew System::Object();
 			this->UIThreadID = System::Threading::Thread::CurrentThread->ManagedThreadId;
 			this->transferForms = gcnew cliext::map<uint16_t, IncomingTransfer^>();
 			//
@@ -131,7 +131,7 @@ namespace GSUI {
 		System::Object^ frameIDMutex;
 		System::Object^ transferIDMutex;
 		System::Object^ uplinkSendNextMutex;
-		System::Object^ framesToResendMutex;
+		System::Object^ kissOutMutex;
 		uint16_t currentDownlinkTransferID, currentUplinkTransferID;
 		System::String^ downlinkSavelocation;
 		int UIThreadID, receiverThreadID, UplinkThreadID, DownlinkPtRqThreadID;
@@ -945,7 +945,7 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 						return;
 					}
 
-					resendHighPriorityFrames();
+					sendAX25Frames();
 				}
 			}
 
@@ -1045,6 +1045,8 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			public: std::vector<uint8_t> ax25Decapsulate(std::vector<uint8_t> & kissdecappedMsg);
 			public: void ax25Encapsulate(std::vector<uint8_t> AX25SatCallsignSSID, std::vector<uint8_t> & outgoingMsg);
 			public: void sendRFPacketAX25(std::vector<uint8_t> AX25SatCallsignSSID, std::vector<uint8_t> & packet);
+			public: void checkKissTNCBufferSize();
+			public: void sendAX25Frames();
 
 			//Communications Handler Functions
 			public: FileTransfer initializeFileTransfer(bool incoming, std::vector<uint8_t> & initializerPacket);
