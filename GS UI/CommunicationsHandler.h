@@ -15,7 +15,7 @@
 
 #include "Logger.h"
 #include "fileOperations.h"
-#include "XBeeCommunication.h"
+#include "AX25Communication.h"
 #include "bitManipulation.h"
 #include "fileTransferClass.h"
 
@@ -124,14 +124,15 @@ bool GSUI::MyForm::transferComplete(uint16_t tID, std::vector<uint8_t> AX25SatCa
 			//Stalling to allow the thread to stop
 			System::Threading::Thread::CurrentThread->Sleep(100);
 		}
-		array<uint16_t>^ args = gcnew array<uint16_t>(6);
-		args[0] = tID;
-		args[1] = XBsixteenBitAddress;
-		std::vector<uint8_t> sixteen(2);
-		for (int i = 0; i < 4; i++) {
-			sixteen[0] = XBsixtyFourBitAddress[2 * i];
-			sixteen[1] = XBsixtyFourBitAddress[1 + (2 * i)];
-			args[2 + i] = makeSixteenBitInt(sixteen);
+		array<uint8_t>^ args = gcnew array<uint8_t>(9);
+		args[1] = tID & 0x00ff;
+		args[0] = tID >> 8;
+		int index = 0;
+		for (; index < AX25SatCallsignSSID.size(); index++) {
+			args[2 + index] = AX25SatCallsignSSID[index];
+		}
+		for (; index < 7; index++) {
+			args[2 + index] = ';';
 		}
 
 		startBackgroundWorkerDownlinkPartRequest(args);
@@ -207,7 +208,7 @@ FileTransfer GSUI::MyForm::initializeFileTransfer(bool incoming, std::vector<uin
 }
 
 
-void GSUI::MyForm::allowUplinkTransferToContinue(uint8_t frameID) {
+/*void GSUI::MyForm::allowUplinkTransferToContinue(uint8_t frameID) {
 	//This function is called when a transmit response is received so that it can let
 	//  the uplink thread know that it can send the next rf packet
 	msclr::lock lck(this->uplinkSendNextMutex);
@@ -215,7 +216,7 @@ void GSUI::MyForm::allowUplinkTransferToContinue(uint8_t frameID) {
 		CommsNaSPUoN::uplinkSendNext.erase(frameID);
 	}
 	lck.release();
-}
+}*/
 
 
 void GSUI::MyForm::sendRFPacket(std::vector<uint8_t> AX25SatCallsignSSID, std::vector<uint8_t> & packet) {
@@ -235,24 +236,24 @@ void GSUI::MyForm::uplinkTransfer(std::vector<uint8_t> AX25SatCallsignSSID, uint
 	uint8_t lastFrameID;
 	for (uint32_t i = 0; i < expectedPackets; i++) {
 		pck = getPacket(&(CommsNaSPUoN::outgoingTransfers[tID]), i);
-		msclr::lock lck(this->uplinkSendNextMutex);
+		//msclr::lock lck(this->uplinkSendNextMutex);
 		sendRFPacket(AX25SatCallsignSSID, pck);
 		
-		lastFrameID = pck[4];
+		/*lastFrameID = pck[4];
 		CommsNaSPUoN::uplinkSendNext[lastFrameID] = false;
 		lck.release();
 		for (int t = 0; ((CommsNaSPUoN::uplinkSendNext.count(lastFrameID)) && (t < 150)); t++) {
 			//Wait for transmit response for the last rf packet to come back before sending the next rf packet
-			System::Threading::Thread::CurrentThread->Sleep(1);
+			System::Threading::Thread::CurrentThread->Sleep(1);*/
 			if (this->backgroundWorker_Uplink->CancellationPending) {
 				e->Cancel = true;
 				return;
 			}
-		}
+		/*}
 		if (CommsNaSPUoN::uplinkSendNext.count(lastFrameID)) {
 			log("CommHndl -> Time out for transmit status return surpassed.");
 			CommsNaSPUoN::uplinkSendNext.erase(lastFrameID);
-		}
+		}*/
 
 		uplinkProgressBarUpdate((i * 100) / expectedPackets);
 	}
@@ -283,24 +284,24 @@ void GSUI::MyForm::downlinkPartRequestTransfer(std::vector<uint8_t> AX25SatCalls
 			pck.push_back(0x0F);
 			insertSixteenBitIntInEightBitVector(pck, pck.end(), tID);
 			insertThirtyTwoBitIntInEightBitVector(pck, pck.end(), i);
-			msclr::lock lck(this->uplinkSendNextMutex);
+			//msclr::lock lck(this->uplinkSendNextMutex);
 			sendRFPacket(AX25SatCallsignSSID, pck);
 
-			lastFrameID = pck[4];
+			/*lastFrameID = pck[4];
 			CommsNaSPUoN::uplinkSendNext[lastFrameID] = false;
 			lck.release();
 			for (int t = 0; ((CommsNaSPUoN::uplinkSendNext.count(lastFrameID)) && (t < 150)); t++) {
 				//Wait for transmit response for the last rf packet to come back before sending the next rf packet
-				System::Threading::Thread::CurrentThread->Sleep(1);
+				System::Threading::Thread::CurrentThread->Sleep(1);*/
 				if (this->backgroundWorker_DownlinkPartRequest->CancellationPending) {
 					e->Cancel = true;
 					return;
 				}
-			}
+			/*}
 			if (CommsNaSPUoN::uplinkSendNext.count(lastFrameID)) {
 				log("CommHndl -> Time out for transmit status return surpassed.");
 				CommsNaSPUoN::uplinkSendNext.erase(lastFrameID);
-			}
+			}*/
 		}
 	}
 	pck.clear();
@@ -402,14 +403,15 @@ void GSUI::MyForm::processIncomingPayload(std::vector<uint8_t> AX25SatCallsignSS
 						//Stalling to allow the thread to stop
 						System::Threading::Thread::CurrentThread->Sleep(100);
 					}
-					array<uint16_t>^ args = gcnew array<uint16_t>(6);
-					args[0] = tID;
-					args[1] = XBsixteenBitAddress;
-					std::vector<uint8_t> sixteen(2);
-					for (int i = 0; i < 4; i++) {
-						sixteen[0] = XBsixtyFourBitAddress[2 * i];
-						sixteen[1] = XBsixtyFourBitAddress[1 + (2 * i)];
-						args[2 + i] = makeSixteenBitInt(sixteen);
+					array<uint8_t>^ args = gcnew array<uint8_t>(9);
+					args[1] = tID & 0x00ff;
+					args[0] = tID >> 8;
+					int index = 0;
+					for (; index < AX25SatCallsignSSID.size(); index++) {
+						args[2 + index] = AX25SatCallsignSSID[index];
+					}
+					for (; index < 7; index++) {
+						args[2 + index] = ';';
 					}
 
 					startBackgroundWorkerUplink(args);

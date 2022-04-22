@@ -45,7 +45,7 @@ namespace GSUI {
 			this->transferIDCount = 0x0000;
 			this->frameIDMutex = gcnew System::Object();
 			this->transferIDMutex = gcnew System::Object();
-			this->uplinkSendNextMutex = gcnew System::Object();
+			//this->uplinkSendNextMutex = gcnew System::Object();
 			this->kissOutMutex = gcnew System::Object();
 			this->UIThreadID = System::Threading::Thread::CurrentThread->ManagedThreadId;
 			this->transferForms = gcnew cliext::map<uint16_t, IncomingTransfer^>();
@@ -130,7 +130,7 @@ namespace GSUI {
 		uint16_t transferIDCount;
 		System::Object^ frameIDMutex;
 		System::Object^ transferIDMutex;
-		System::Object^ uplinkSendNextMutex;
+		//System::Object^ uplinkSendNextMutex;
 		System::Object^ kissOutMutex;
 		uint16_t currentDownlinkTransferID, currentUplinkTransferID;
 		System::String^ downlinkSavelocation;
@@ -1086,14 +1086,15 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 				//Stalling for the UplinkThreadID to be updated
 				System::Threading::Thread::CurrentThread->Sleep(100);
 
-				array<uint16_t>^ args = safe_cast< array<uint16_t>^ >(e->Argument);
-				uint16_t tID = args[0];
-				uint16_t XBsixteenBitAddress = args[1];
-				std::vector<uint8_t> XBsixtyFourBitAddress;
-				for (int i = 2; ((i < args->Length) && (i < 6)); i++)
-					insertSixteenBitIntInEightBitVector(XBsixtyFourBitAddress, XBsixtyFourBitAddress.end(), args[i]);
+				array<uint8_t>^ args = safe_cast< array<uint8_t>^ >(e->Argument);
+				uint16_t tID = (args[0] << 8) + args[1];
+				std::vector<uint8_t> AX25SatCallsignSSID;
+				for (int i = 2; ((i < args->Length) && (i < 9)); i++) {
+					if (args[i] != ';')
+						AX25SatCallsignSSID.push_back((uint8_t)(args[i]));
+				}
 
-				uplinkTransfer(XBsixtyFourBitAddress, XBsixteenBitAddress, tID, e);
+				uplinkTransfer(AX25SatCallsignSSID, tID, e);
 			}
 
 			//Function that is executed on UI thread when backgroundWorker_Uplink->ReportProgress() is called
@@ -1151,14 +1152,15 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 				//Stalling for the DownlinkPtRqThreadID to be updated
 				System::Threading::Thread::CurrentThread->Sleep(100);
 
-				array<uint16_t>^ args = safe_cast<array<uint16_t>^>(e->Argument);
-				uint16_t tID = args[0];
-				uint16_t XBsixteenBitAddress = args[1];
-				std::vector<uint8_t> XBsixtyFourBitAddress;
-				for (int i = 2; i < args->Length; i++)
-					insertSixteenBitIntInEightBitVector(XBsixtyFourBitAddress, XBsixtyFourBitAddress.end(), args[i]);
+				array<uint8_t>^ args = safe_cast<array<uint8_t>^>(e->Argument);
+				uint16_t tID = (args[0] << 8) + args[1];
+				std::vector<uint8_t> AX25SatCallsignSSID;
+				for (int i = 2; ((i < args->Length) && (i < 9)); i++) {
+					if (args[i] != ';')
+						AX25SatCallsignSSID.push_back((uint8_t)(args[i]));
+				}
 
-				downlinkPartRequestTransfer(XBsixtyFourBitAddress, XBsixteenBitAddress, tID, e);
+				downlinkPartRequestTransfer(AX25SatCallsignSSID, tID, e);
 			}
 
 			//Function that is executed on UI thread when backgroundWorker_DownlinkPartRequest->ReportProgress() is called

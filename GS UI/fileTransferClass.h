@@ -31,7 +31,7 @@ namespace CommsNaSPUoN
 	std::map<uint16_t, FileTransfer > incomingTransfers;
 
 	//For the threads (Uplink & downlink part request) to know when to send the next rf packet
-	std::map<uint8_t, bool> uplinkSendNext;
+	//std::map<uint8_t, bool> uplinkSendNext;
 }
 
 #endif
