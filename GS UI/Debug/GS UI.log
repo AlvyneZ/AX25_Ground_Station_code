@@ -1,14 +1,21 @@
-﻿  IncomingTransfer.cpp
-  MyForm.cpp
-c:\users\alvynez\source\repos\gsui ax25\gs ui\myform.h(114): warning C4677: 'transferForms': signature of non-private member contains assembly private type 'cliext::map<uint16_t,GSUI::IncomingTransfer ^>'
-  c:\users\alvynez\source\repos\gsui ax25\gs ui\myform.h(114): note: see declaration of 'cliext::map<uint16_t,GSUI::IncomingTransfer ^>'
-c:\users\alvynez\source\repos\gsui ax25\gs ui\logger.h(20): warning C4996: 'localtime': This function or variable may be unsafe. Consider using localtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+﻿  MyForm.cpp
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\myform.h(126): warning C4677: 'transferForms': signature of non-private member contains assembly private type 'cliext::map<uint16_t,GSUI::IncomingTransfer ^>'
+  c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\myform.h(126): note: see declaration of 'cliext::map<uint16_t,GSUI::IncomingTransfer ^>'
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\logger.h(20): warning C4996: 'localtime': This function or variable may be unsafe. Consider using localtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\time.h(506): note: see declaration of 'localtime'
-c:\users\alvynez\source\repos\gsui ax25\gs ui\xbeecommunication.h(428): warning C4018: '<': signed/unsigned mismatch
-c:\users\alvynez\source\repos\gsui ax25\gs ui\communicationshandler.h(594): warning C4996: 'localtime': This function or variable may be unsafe. Consider using localtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\ax25communication.h(47): warning C4018: '<': signed/unsigned mismatch
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\ax25communication.h(131): warning C4018: '<': signed/unsigned mismatch
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\ax25communication.h(206): warning C4018: '>=': signed/unsigned mismatch
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\ax25communication.h(232): warning C4018: '<': signed/unsigned mismatch
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\ax25communication.h(264): warning C4018: '<': signed/unsigned mismatch
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\ax25communication.h(273): warning C4018: '<': signed/unsigned mismatch
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\ax25communication.h(330): warning C4018: '<': signed/unsigned mismatch
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\communicationshandler.h(131): warning C4018: '<': signed/unsigned mismatch
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\communicationshandler.h(236): warning C4101: 'lastFrameID': unreferenced local variable
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\communicationshandler.h(274): warning C4101: 'lastFrameID': unreferenced local variable
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\communicationshandler.h(410): warning C4018: '<': signed/unsigned mismatch
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\communicationshandler.h(596): warning C4996: 'localtime': This function or variable may be unsafe. Consider using localtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\time.h(506): note: see declaration of 'localtime'
-  AboutDialog.cpp
-  Generating Code...
   .NETFramework,Version=v4.6.1.AssemblyAttributes.cpp
   IncomingTransfer.obj : MSIL module encountered; incremental linking is disabled for MSIL; performing full link
-  GS UI.vcxproj -> C:\Users\AlvyneZ\source\repos\GSUI AX25\Debug\GS_UI.exe
+  GS UI.vcxproj -> C:\Users\AlvyneZ\Desktop\school\5th Year\Project\Code\GSUI AX25\Debug\GS_UI.exe

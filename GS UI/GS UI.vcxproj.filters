@@ -35,9 +35,6 @@
     <ClInclude Include="Logger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="XBeeCommunication.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="bitManipulation.h">
       <Filter>Header Files</Filter>
     </ClInclude>

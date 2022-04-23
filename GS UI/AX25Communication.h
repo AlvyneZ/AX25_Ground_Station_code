@@ -11,7 +11,14 @@
 
 #include <vector>
 #include <string>
+#include <map>
+#include <chrono>
 
+
+uint64_t timeSinceEpochMillisec() {
+	using namespace std::chrono;
+	return duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+}
 
 #define KISS_FEND  0xC0
 #define KISS_FESC  0xDB
@@ -27,6 +34,8 @@ namespace KISS {
 	std::vector<uint8_t> kissInBuffer;
 	std::vector< std::vector<uint8_t> > kissOutBuffer;
 	uint64_t kissTNCBufferSize;
+
+	std::map<uint64_t, std::vector<uint8_t> > HPAX25AwaitingACK;
 }
 
 
@@ -108,7 +117,10 @@ void GSUI::MyForm::kissDecapsulate(std::vector<uint8_t> & receivedFrame) {
 	switch (kissPacketType) {
 	case KISS_TYPE_DATA:
 		AX25SatCallsignSSID = ax25Decapsulate(receivedFrame);
-		processIncomingPayload(AX25SatCallsignSSID, receivedFrame);
+		if (AX25SatCallsignSSID.size() > 0) {
+			HPAX25PacketDecapsulate(AX25SatCallsignSSID, receivedFrame);
+			processIncomingPayload(AX25SatCallsignSSID, receivedFrame);
+		}
 		break;
 	case KISS_TYPE_CMD:
 		//To refresh the KISS TNC Buffer Used Size
@@ -180,6 +192,11 @@ void GSUI::MyForm::kissTranspose(std::vector<uint8_t> & outgoingMsg) {
 #define AX25_NO_PROT_PID	0xF0
 #define AX25_SSID_PREFIX	0x30
 
+#define APRS_MORSE_DATA_IND	'm'
+
+#define AX25_RESEND_LIMIT 10
+#define AX25_RESEND_INTERVAL_MILLI	1000
+
 std::vector<uint8_t> GSUI::MyForm::ax25Decapsulate(std::vector<uint8_t> & kissdecappedMsg) {
 	std::vector<uint8_t> ret;
 	//Getting the index of the first byte of the source in the address field
@@ -222,6 +239,13 @@ std::vector<uint8_t> GSUI::MyForm::ax25Decapsulate(std::vector<uint8_t> & kissde
 	//Getting the actual message by removing address field, control field and protocol field
 	kissdecappedMsg.erase(kissdecappedMsg.begin(), kissdecappedMsg.begin() + sourceAddress + 9);
 
+	//If data frame is not an APRS morse data type, drop the frame
+	if (kissdecappedMsg[0] != APRS_MORSE_DATA_IND)
+		return ret;
+
+	//Remove the APRS morse data type indicator
+	kissdecappedMsg.erase(kissdecappedMsg.begin());
+
 	//Returning the source(satellite address)
 	ret.insert(ret.begin(), msgSource.begin(), msgSource.end());
 	ret.push_back(msgSourceSSID);
@@ -229,6 +253,7 @@ std::vector<uint8_t> GSUI::MyForm::ax25Decapsulate(std::vector<uint8_t> & kissde
 }
 
 void GSUI::MyForm::ax25Encapsulate(std::vector<uint8_t> AX25SatCallsignSSID, std::vector<uint8_t> & outgoingMsg) {
+	outgoingMsg.insert(outgoingMsg.begin(), APRS_MORSE_DATA_IND);
 	outgoingMsg.insert(outgoingMsg.begin(), AX25_NO_PROT_PID);
 	outgoingMsg.insert(outgoingMsg.begin(), AX25_UI_CONTROL);
 
@@ -243,7 +268,7 @@ void GSUI::MyForm::ax25Encapsulate(std::vector<uint8_t> AX25SatCallsignSSID, std
 	outgoingMsg.insert(outgoingMsg.begin(), source.begin(), source.end());
 
 	std::vector<uint8_t> dest(AX25SatCallsignSSID.begin(), AX25SatCallsignSSID.end()-1);
-	while (dest.size() < 6) dest.push_back(' ');
+	for (int i = dest.size(); i < 6; i++) dest.push_back(' ');
 	dest.push_back(AX25SatCallsignSSID[AX25SatCallsignSSID.size()-1] | AX25_SSID_PREFIX);
 	for (int i = 0; i < dest.size(); i++) {
 		dest[i] <<= 1;
@@ -253,6 +278,7 @@ void GSUI::MyForm::ax25Encapsulate(std::vector<uint8_t> AX25SatCallsignSSID, std
 
 
 void GSUI::MyForm::sendRFPacketAX25(std::vector<uint8_t> AX25SatCallsignSSID, std::vector<uint8_t> & packet) {
+	HPAX25PacketEncapsulate(AX25SatCallsignSSID, packet);
 	ax25Encapsulate(AX25SatCallsignSSID, packet);
 	kissEncapsulate(false, packet);
 	
@@ -277,6 +303,28 @@ void GSUI::MyForm::checkKissTNCBufferSize() {
 void GSUI::MyForm::sendAX25Frames() {
 	System::Threading::Thread::CurrentThread->Sleep(100);
 
+	//Adding High Priority Packets that are meant to be resent to the Out Buffer
+	msclr::lock lck0(HPAX25Mutex);
+	for (std::map<uint64_t, std::vector<uint8_t>>::iterator it = KISS::HPAX25AwaitingACK.begin(); it != KISS::HPAX25AwaitingACK.end(); it++) {
+		std::vector<uint8_t> AX25SatCallsignSSID((it->second).begin(), (it->second).begin() + 8);
+		std::vector<uint8_t> packet((it->second).begin() + 8, (it->second).end());
+		uint8_t resendCount = packet[3];
+		if (resendCount >= AX25_RESEND_LIMIT) {
+			KISS::HPAX25AwaitingACK.erase(it);
+		}
+		else {
+			uint64_t currentTimeStamp = timeSinceEpochMillisec();
+			uint64_t nextResendTimeStamp = ((1+resendCount) * AX25_RESEND_INTERVAL_MILLI);
+			nextResendTimeStamp += getSixtyFourBitIntFromEightBitVector(packet, 4);
+			if (currentTimeStamp > nextResendTimeStamp) {
+				packet[3] ++;
+				sendRFPacketAX25(AX25SatCallsignSSID, packet);
+			}
+		}
+	}
+	lck0.release();
+
+	//sending AX.25 packets that are in the Out Buffer
 	msclr::lock lck(kissOutMutex);
 	int index = 0;
 	for (; index < KISS::kissOutBuffer.size(); index++) {
@@ -286,10 +334,86 @@ void GSUI::MyForm::sendAX25Frames() {
 		sendSerial(KISS::kissOutBuffer[index]);
 		checkKissTNCBufferSize();
 	}
-	KISS::kissOutBuffer.erase(KISS::kissOutBuffer.begin(), KISS::kissOutBuffer.begin() + index);
+	if (index > 0)
+		KISS::kissOutBuffer.erase(KISS::kissOutBuffer.begin(), KISS::kissOutBuffer.begin() + index);
 	lck.release();
 }
 
 
+
+/*
+ * To prevent errors in transmission, delivery of some packets need to be ensured
+ *   These packets are: - Transmission Initialization (TI)
+ *						- Transmission Begin (TB)
+ *						- Transmission Complete (TC)
+ *	  To ensure delivery Acknowledgements will be used
+*/
+
+//Function to check if a packet is High Priority(HP)
+bool GSUI::MyForm::isOutAX25PacketHP(std::vector<uint8_t> & frameToSend) {
+	try {
+		if (frameToSend[0] == 'T') {
+			return ((frameToSend[1] == 'I') || (frameToSend[1] == 'B') || (frameToSend[1] == 'C'));
+		}
+		return false;
+	}
+	catch (...) {
+		return false;
+	}
+}
+
+//Function that encapsulates frames that are high priority with an ID and 'HP' tag
+void GSUI::MyForm::HPAX25PacketEncapsulate(std::vector<uint8_t> AX25SatCallsignSSID, std::vector<uint8_t> & frameToSend) {
+	if (isOutAX25PacketHP(frameToSend)) {
+		uint64_t HPID = timeSinceEpochMillisec();
+		insertSixtyFourBitIntInEightBitVector(frameToSend, frameToSend.begin(), HPID);
+		frameToSend.insert(frameToSend.begin(), 0x00);
+		frameToSend.insert(frameToSend.begin(), 'D');
+		frameToSend.insert(frameToSend.begin(), 'P');
+		frameToSend.insert(frameToSend.begin(), 'H');
+
+		std::vector<uint8_t> frameToSave(frameToSend.begin(), frameToSend.end());
+		for (int i = AX25SatCallsignSSID.size(); i < 8; i++)
+			AX25SatCallsignSSID.push_back(';');
+		frameToSave.insert(frameToSave.begin(), AX25SatCallsignSSID.begin(), AX25SatCallsignSSID.end());
+		
+		KISS::HPAX25AwaitingACK.insert(std::make_pair(HPID, frameToSave));
+	}
+
+	//If the packet is not a high priority packet, do nothing
+}
+
+//Function that removes the 'HP' tag from received frames that are High Priority
+//	and sends back the corresponding ACK
+//It also checks if the received packet is an ACK
+void GSUI::MyForm::HPAX25PacketDecapsulate(std::vector<uint8_t> AX25SatCallsignSSID, std::vector<uint8_t> & receivedFrame) {
+	if ((receivedFrame.size() >= 11) && (receivedFrame[0] == 'H') && (receivedFrame[1] == 'P')) {
+		if (receivedFrame[2] == 'A') {
+			//Acknowledgement packet -> Remove from High Pririty packets to be resent
+
+			//Extracting the High Priority packet ID
+			uint64_t HPID = getSixtyFourBitIntFromEightBitVector(receivedFrame, 3);
+
+			msclr::lock lck(this->HPAX25Mutex);
+			if (KISS::HPAX25AwaitingACK.count(HPID)) {
+				KISS::HPAX25AwaitingACK.erase(HPID);
+			}
+			lck.release();
+			receivedFrame.clear();
+		}
+		else if (receivedFrame[2] == 'D') {
+			//Data Packet -> Send back an Acknowledgement packet
+			std::vector<uint8_t> ack(receivedFrame.begin(), receivedFrame.begin() + 12);
+			ack[2] = 'A';
+			ack.erase(ack.begin() + 3);
+			sendRFPacketAX25(AX25SatCallsignSSID, ack);
+			receivedFrame.erase(receivedFrame.begin(), receivedFrame.begin() + 12);
+		}
+		else
+			return;
+	}
+
+	//If the packet is not a high priority packet, do nothing
+}
 
 #endif

@@ -158,7 +158,6 @@
     <ClInclude Include="AboutDialog.h">
       <FileType>CppForm</FileType>
     </ClInclude>
-    <ClInclude Include="XBeeCommunication.h" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="IncomingTransfer.resx">

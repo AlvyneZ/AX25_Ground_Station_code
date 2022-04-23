@@ -47,6 +47,7 @@ namespace GSUI {
 			this->transferIDMutex = gcnew System::Object();
 			//this->uplinkSendNextMutex = gcnew System::Object();
 			this->kissOutMutex = gcnew System::Object();
+			this->HPAX25Mutex = gcnew System::Object();
 			this->UIThreadID = System::Threading::Thread::CurrentThread->ManagedThreadId;
 			this->transferForms = gcnew cliext::map<uint16_t, IncomingTransfer^>();
 			//
@@ -132,6 +133,7 @@ namespace GSUI {
 		System::Object^ transferIDMutex;
 		//System::Object^ uplinkSendNextMutex;
 		System::Object^ kissOutMutex;
+		System::Object^ HPAX25Mutex;
 		uint16_t currentDownlinkTransferID, currentUplinkTransferID;
 		System::String^ downlinkSavelocation;
 		int UIThreadID, receiverThreadID, UplinkThreadID, DownlinkPtRqThreadID;
@@ -1015,12 +1017,16 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			//Bit manipulations
 			public: std::vector<uint8_t> splitSixteenBitInt(uint16_t sixteenBitInt);
 			public: std::vector<uint8_t> splitThirtyTwoBitInt(uint32_t thirtyTwoBitInt);
+			public: std::vector<uint8_t> splitSixtyFourBitInt(uint64_t sixtyFourBitInt);
 			public: void insertSixteenBitIntInEightBitVector(std::vector<uint8_t> & eightBitIntsVector, std::vector<uint8_t>::iterator position, uint16_t sixteenBitInt);
 			public: void insertThirtyTwoBitIntInEightBitVector(std::vector<uint8_t> & eightBitIntsVector, std::vector<uint8_t>::iterator position, uint32_t thirtyTwoBitInt);
+			public: void insertSixtyFourBitIntInEightBitVector(std::vector<uint8_t> & eightBitIntsVector, std::vector<uint8_t>::iterator position, uint64_t sixtyFourBitInt);
 			public: uint16_t makeSixteenBitInt(std::vector<uint8_t> eightBitIntsVector);
 			public: uint32_t makeThirtyTwoBitInt(std::vector<uint8_t> eightBitIntsVector);
+			public: uint64_t makeSixtyFourBitInt(std::vector<uint8_t> eightBitIntsVector);
 			public: uint16_t getSixteenBitIntFromEightBitVector(std::vector<uint8_t> & eightBitIntsVector, int start);
 			public: uint32_t getThirtyTwoBitIntFromEightBitVector(std::vector<uint8_t> & eightBitIntsVector, int start);
+			public: uint64_t getSixtyFourBitIntFromEightBitVector(std::vector<uint8_t> & eightBitIntsVector, int start);
 			public: std::string vectorToHexString(std::vector<uint8_t> & vectorOfEightBitInts);
 			public: std::string integerToHexString(uint32_t integer, int hexDigits);
 
@@ -1047,6 +1053,9 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			public: void sendRFPacketAX25(std::vector<uint8_t> AX25SatCallsignSSID, std::vector<uint8_t> & packet);
 			public: void checkKissTNCBufferSize();
 			public: void sendAX25Frames();
+			public: bool isOutAX25PacketHP(std::vector<uint8_t> & frameToSend);
+			public: void HPAX25PacketEncapsulate(std::vector<uint8_t> AX25SatCallsignSSID, std::vector<uint8_t> & frameToSend);
+			public: void HPAX25PacketDecapsulate(std::vector<uint8_t> AX25SatCallsignSSID, std::vector<uint8_t> & receivedFrame);
 
 			//Communications Handler Functions
 			public: FileTransfer initializeFileTransfer(bool incoming, std::vector<uint8_t> & initializerPacket);
@@ -1054,7 +1063,7 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			public: std::vector<uint8_t> getPacket(FileTransfer * ft, uint32_t index);
 			public: std::vector<uint8_t> getInitializationPacket(FileTransfer * ft);
 			public: void addPacket(FileTransfer * ft, std::vector<uint8_t> & packet);
-			public: void allowUplinkTransferToContinue(uint8_t frameID);
+			//public: void allowUplinkTransferToContinue(uint8_t frameID);
 			public: void sendRFPacket(std::vector<uint8_t> AX25SatCallsignSSID, std::vector<uint8_t> & packet);
 			public: void uplinkTransfer(std::vector<uint8_t> AX25SatCallsignSSID, uint16_t tID, System::ComponentModel::DoWorkEventArgs^  e);
 			public: void downlinkPartRequestTransfer(std::vector<uint8_t> AX25SatCallsignSSID, uint16_t tID, System::ComponentModel::DoWorkEventArgs^  e);

@@ -333,7 +333,7 @@ void GSUI::MyForm::processIncomingPayload(std::vector<uint8_t> AX25SatCallsignSS
 					}
 				}
 				else if (payload[2] == 0x03) {
-					//Packet count that was successfully received
+					//Count of packets that were successfully received
 					uint16_t tID = getSixteenBitIntFromEightBitVector(payload, 3);
 
 					if (CommsNaSPUoN::outgoingTransfers.count(tID)) {
@@ -466,8 +466,8 @@ void GSUI::MyForm::processIncomingPayload(std::vector<uint8_t> AX25SatCallsignSS
 					sendRFPacket(AX25SatCallsignSSID, pck);
 				}
 				else {
-					std::string outOrIn = (payload[4] == 0x01) ? " Incoming " : ((payload[4] == 0x00) || (payload[4] == 0x02)) ? " Outgoing " : " Direction Unknown ";
-					logErr("CommHndl -> Received a transfer complete for a non-existent" + outOrIn + "tID " + std::to_string(tID) + ".");
+					std::string outOrIn = (payload[4] == 0x01) ? "Incoming" : ((payload[4] == 0x00) || (payload[4] == 0x02)) ? "Outgoing" : "[Direction Unknown]";
+					logErr("CommHndl -> Received a transfer complete for a non-existent " + outOrIn + " tID " + std::to_string(tID) + ".");
 				}
 			}
 			else if (payload[1] == 'Z') {
@@ -597,8 +597,8 @@ void GSUI::MyForm::processIncomingPayload(std::vector<uint8_t> AX25SatCallsignSS
 
 			//Year
 			uint16_t year = localTime->tm_year + 1900;
-			payload.push_back((uint8_t)(year / 256));
-			payload.push_back((uint8_t)(year % 256));
+			payload.push_back((uint8_t)(year / 256)); //(year >> 8)
+			payload.push_back((uint8_t)(year % 256)); //(year & 0x00ff)
 			//Month
 			payload.push_back((uint8_t)(localTime->tm_mon + 1));
 			//Day of the month

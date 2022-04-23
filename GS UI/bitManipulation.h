@@ -29,6 +29,19 @@ std::vector<uint8_t> GSUI::MyForm::splitThirtyTwoBitInt(uint32_t thirtyTwoBitInt
 	return eightBitIntsVector;
 }
 
+std::vector<uint8_t> GSUI::MyForm::splitSixtyFourBitInt(uint64_t sixtyFourBitInt) {
+	std::vector<uint8_t> eightBitIntsVector;
+	eightBitIntsVector.push_back((uint8_t)((sixtyFourBitInt & 0xFF00000000000000) >> 56));
+	eightBitIntsVector.push_back((uint8_t)((sixtyFourBitInt & 0x00FF000000000000) >> 48));
+	eightBitIntsVector.push_back((uint8_t)((sixtyFourBitInt & 0x0000FF0000000000) >> 40));
+	eightBitIntsVector.push_back((uint8_t)((sixtyFourBitInt & 0x000000FF00000000) >> 32));
+	eightBitIntsVector.push_back((uint8_t)((sixtyFourBitInt & 0x00000000FF000000) >> 24));
+	eightBitIntsVector.push_back((uint8_t)((sixtyFourBitInt & 0x0000000000FF0000) >> 16));
+	eightBitIntsVector.push_back((uint8_t)((sixtyFourBitInt & 0x000000000000FF00) >> 8));
+	eightBitIntsVector.push_back((uint8_t)(sixtyFourBitInt & 0x00000000000000FF));
+	return eightBitIntsVector;
+}
+
 
 void GSUI::MyForm::insertSixteenBitIntInEightBitVector(std::vector<uint8_t> & eightBitIntsVector, std::vector<uint8_t>::iterator position, uint16_t sixteenBitInt) {
 	std::vector<uint8_t> vectorToBeInserted = splitSixteenBitInt(sixteenBitInt);
@@ -37,6 +50,11 @@ void GSUI::MyForm::insertSixteenBitIntInEightBitVector(std::vector<uint8_t> & ei
 
 void GSUI::MyForm::insertThirtyTwoBitIntInEightBitVector(std::vector<uint8_t> & eightBitIntsVector, std::vector<uint8_t>::iterator position, uint32_t thirtyTwoBitInt) {
 	std::vector<uint8_t> vectorToBeInserted = splitThirtyTwoBitInt(thirtyTwoBitInt);
+	eightBitIntsVector.insert(position, vectorToBeInserted.begin(), vectorToBeInserted.end());
+}
+
+void GSUI::MyForm::insertSixtyFourBitIntInEightBitVector(std::vector<uint8_t> & eightBitIntsVector, std::vector<uint8_t>::iterator position, uint64_t sixtyFourBitInt) {
+	std::vector<uint8_t> vectorToBeInserted = splitSixtyFourBitInt(sixtyFourBitInt);
 	eightBitIntsVector.insert(position, vectorToBeInserted.begin(), vectorToBeInserted.end());
 }
 
@@ -61,6 +79,17 @@ uint32_t GSUI::MyForm::makeThirtyTwoBitInt(std::vector<uint8_t> eightBitIntsVect
 		thirtyTwoBitInt += (((uint32_t)eightBitIntsVector[i]) << (24 - (i * 8)));
 	}
 	return thirtyTwoBitInt;
+}
+
+uint64_t GSUI::MyForm::makeSixtyFourBitInt(std::vector<uint8_t> eightBitIntsVector) {
+	uint64_t sixtyFourBitInt = 0x0000000000000000;
+	int vectorSize = eightBitIntsVector.size();
+	if (vectorSize != 8)
+		log("Note (possible Error): Converting vector of size " + std::to_string(vectorSize) + " to uint64_t.");
+	for (int i = 0; ((i < 8) && (i < vectorSize)); i++) {
+		sixtyFourBitInt += (((uint64_t)eightBitIntsVector[i]) << (56 - (i * 8)));
+	}
+	return sixtyFourBitInt;
 }
 
 
@@ -92,6 +121,21 @@ uint32_t GSUI::MyForm::getThirtyTwoBitIntFromEightBitVector(std::vector<uint8_t>
 	}
 	vectorOfThirtyTwoBitInt.insert(vectorOfThirtyTwoBitInt.begin(), eightBitIntsVector.begin() + start, eightBitIntsVector.begin() + end);
 	return makeThirtyTwoBitInt(vectorOfThirtyTwoBitInt);
+}
+
+uint64_t GSUI::MyForm::getSixtyFourBitIntFromEightBitVector(std::vector<uint8_t> & eightBitIntsVector, int start) {
+	int vectorSize = eightBitIntsVector.size();
+	std::vector<uint8_t> vectorOfSixtyFourBitInt;
+	if (start >= vectorSize) {
+		log("Note (possible Error): Converting out of range part of vector to uint64_t.");
+		return 0x00000000;
+	}
+	int end = start + 8;
+	if (end > vectorSize) {
+		end = vectorSize;
+	}
+	vectorOfSixtyFourBitInt.insert(vectorOfSixtyFourBitInt.begin(), eightBitIntsVector.begin() + start, eightBitIntsVector.begin() + end);
+	return makeSixtyFourBitInt(vectorOfSixtyFourBitInt);
 }
 
 
