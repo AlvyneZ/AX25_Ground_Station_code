@@ -45,6 +45,16 @@
                     "Name" = "8:Microsoft .NET Framework 4.6.1 (x86 and x64)"
                     "ProductCode" = "8:.NETFramework,Version=v4.6.1"
                     }
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Visual.C++.14.0.x64"
+                    {
+                    "Name" = "8:Visual C++ \"14\" Runtime Libraries (x64)"
+                    "ProductCode" = "8:Microsoft.Visual.C++.14.0.x64"
+                    }
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Visual.C++.14.0.x86"
+                    {
+                    "Name" = "8:Visual C++ \"14\" Runtime Libraries (x86)"
+                    "ProductCode" = "8:Microsoft.Visual.C++.14.0.x86"
+                    }
                 }
             }
         }
@@ -76,6 +86,16 @@
                     {
                     "Name" = "8:Microsoft .NET Framework 4.6.1 (x86 and x64)"
                     "ProductCode" = "8:.NETFramework,Version=v4.6.1"
+                    }
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Visual.C++.14.0.x64"
+                    {
+                    "Name" = "8:Visual C++ \"14\" Runtime Libraries (x64)"
+                    "ProductCode" = "8:Microsoft.Visual.C++.14.0.x64"
+                    }
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Visual.C++.14.0.x86"
+                    {
+                    "Name" = "8:Visual C++ \"14\" Runtime Libraries (x86)"
+                    "ProductCode" = "8:Microsoft.Visual.C++.14.0.x86"
                     }
                 }
             }
@@ -165,7 +185,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:NaPUoN GSUI"
         "ProductCode" = "8:{023B782B-88E2-4F9D-B5B4-600B0337CBA9}"
-        "PackageCode" = "8:{E32035B1-93B1-41FD-A8FC-43E95C5985C5}"
+        "PackageCode" = "8:{6B4D1064-6113-4BB4-8988-14DC628BDD29}"
         "UpgradeCode" = "8:{B7C7A3D5-6A9B-47EA-9E67-8F6407246815}"
         "AspNetVersion" = "8:2.0.50727.0"
         "RestartWWWService" = "11:FALSE"
@@ -686,7 +706,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_7FE2C46AD60C40E4BD76C8BFB6834035"
             {
-            "SourcePath" = "8:"
+            "SourcePath" = "8:..\\Release\\GS_UI.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_EC80B46EB3EF44B2859EF84116B9D03C"

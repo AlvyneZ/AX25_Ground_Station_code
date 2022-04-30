@@ -135,7 +135,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="IncomingTransfer.cpp" />
+    <ClCompile Include="DownlinkTransfer.cpp" />
     <ClCompile Include="MyForm.cpp" />
     <ClCompile Include="AboutDialog.cpp" />
   </ItemGroup>
@@ -145,7 +145,7 @@
     <ClInclude Include="CommunicationsHandler.h" />
     <ClInclude Include="fileOperations.h" />
     <ClInclude Include="fileTransferClass.h" />
-    <ClInclude Include="IncomingTransfer.h">
+    <ClInclude Include="DownlinkTransfer.h">
       <FileType>CppForm</FileType>
     </ClInclude>
     <ClInclude Include="Logger.h" />
@@ -160,8 +160,8 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="IncomingTransfer.resx">
-      <DependentUpon>IncomingTransfer.h</DependentUpon>
+    <EmbeddedResource Include="DownlinkTransfer.resx">
+      <DependentUpon>DownlinkTransfer.h</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MyForm.resx">
       <DependentUpon>MyForm.h</DependentUpon>

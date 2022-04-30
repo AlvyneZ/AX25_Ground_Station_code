@@ -43,7 +43,7 @@ namespace KISS {
 
 
 //Processing of received frames from the serial port
-void SatUI::MyForm::processReceivedPacketAX25(std::vector<uint8_t> & packet) {
+void GSUI::MyForm::processReceivedPacketAX25(std::vector<uint8_t> & packet) {
 	//log("///=> " + vectorToHexString(packet));
 	std::vector<std::vector<uint8_t>> receivedFrames = kissCombineFrame(packet);
 	for (int i = 0; i < receivedFrames.size(); i++) {
@@ -59,7 +59,7 @@ void SatUI::MyForm::processReceivedPacketAX25(std::vector<uint8_t> & packet) {
  * Then return the frames with Transposed FESC and FEND returned to normal
  * and delimiting FEND frames removed
 */
-std::vector<std::vector<uint8_t>> SatUI::MyForm::kissCombineFrame(std::vector<uint8_t> & receivedMsg) {
+std::vector<std::vector<uint8_t>> GSUI::MyForm::kissCombineFrame(std::vector<uint8_t> & receivedMsg) {
 	int start = KISS::kissInBuffer.size();
 	int end = start + receivedMsg.size();
 	//Add the whole of the received message to the buffer
@@ -107,7 +107,7 @@ std::vector<std::vector<uint8_t>> SatUI::MyForm::kissCombineFrame(std::vector<ui
 /*
  * Function to check kiss packet data type and TNCPort.
 */
-void SatUI::MyForm::kissDecapsulate(std::vector<uint8_t> & receivedFrame) {
+void GSUI::MyForm::kissDecapsulate(std::vector<uint8_t> & receivedFrame) {
 	//If the reseived packet is from the wrong TNCPort, drop it
 	if ((receivedFrame[0] & 0xF0) != this->TNCPort)
 		return;
@@ -152,7 +152,7 @@ void SatUI::MyForm::kissDecapsulate(std::vector<uint8_t> & receivedFrame) {
  * Function to add data type and TNCPort to kiss frame
  * It also adds FEND flags and transposes FENDs and FESCs in the frame
 */
-void SatUI::MyForm::kissEncapsulate(bool command, std::vector<uint8_t> & outgoingMsg) {
+void GSUI::MyForm::kissEncapsulate(bool command, std::vector<uint8_t> & outgoingMsg) {
 	if (command) {
 		outgoingMsg.insert(outgoingMsg.begin(), (this->TNCPort | KISS_TYPE_CMD));
 	}
@@ -168,7 +168,7 @@ void SatUI::MyForm::kissEncapsulate(bool command, std::vector<uint8_t> & outgoin
 /*
  * Function to transpose FEND and FESC to FESC-TFEND and FESC-TFESC respectively
 */
-void SatUI::MyForm::kissTranspose(std::vector<uint8_t> & outgoingMsg) {
+void GSUI::MyForm::kissTranspose(std::vector<uint8_t> & outgoingMsg) {
 	for (int i = outgoingMsg.size() - 1; i >= 0; i--) {
 		if (outgoingMsg[i] == KISS_FEND) {
 			outgoingMsg[i] = KISS_TFEND;
@@ -203,7 +203,7 @@ void SatUI::MyForm::kissTranspose(std::vector<uint8_t> & outgoingMsg) {
 #define AX25_RESEND_LIMIT 10
 #define AX25_RESEND_INTERVAL_MILLI	1000
 
-std::vector<uint8_t> SatUI::MyForm::ax25Decapsulate(std::vector<uint8_t> & kissdecappedMsg) {
+std::vector<uint8_t> GSUI::MyForm::ax25Decapsulate(std::vector<uint8_t> & kissdecappedMsg) {
 	std::vector<uint8_t> ret;
 	//Getting the index of the first byte of the source in the address field
 	int sourceAddress = 0;
@@ -258,7 +258,7 @@ std::vector<uint8_t> SatUI::MyForm::ax25Decapsulate(std::vector<uint8_t> & kissd
 	return ret;
 }
 
-void SatUI::MyForm::ax25Encapsulate(std::vector<uint8_t> AX25SatCallsignSSID, std::vector<uint8_t> & outgoingMsg) {
+void GSUI::MyForm::ax25Encapsulate(std::vector<uint8_t> AX25SatCallsignSSID, std::vector<uint8_t> & outgoingMsg) {
 	outgoingMsg.insert(outgoingMsg.begin(), APRS_MORSE_DATA_IND);
 	outgoingMsg.insert(outgoingMsg.begin(), AX25_NO_PROT_PID);
 	outgoingMsg.insert(outgoingMsg.begin(), AX25_UI_CONTROL);
@@ -283,7 +283,7 @@ void SatUI::MyForm::ax25Encapsulate(std::vector<uint8_t> AX25SatCallsignSSID, st
 }
 
 
-void SatUI::MyForm::sendRFPacketAX25(std::vector<uint8_t> AX25SatCallsignSSID, std::vector<uint8_t> & packet) {
+void GSUI::MyForm::sendRFPacketAX25(std::vector<uint8_t> AX25SatCallsignSSID, std::vector<uint8_t> & packet) {
 	HPAX25PacketEncapsulate(AX25SatCallsignSSID, packet);
 	ax25Encapsulate(AX25SatCallsignSSID, packet);
 	kissEncapsulate(false, packet);
@@ -298,7 +298,7 @@ void SatUI::MyForm::sendRFPacketAX25(std::vector<uint8_t> AX25SatCallsignSSID, s
 }
 
 
-void SatUI::MyForm::checkKissTNCBufferSize() {
+void GSUI::MyForm::checkKissTNCBufferSize() {
 	std::string cmd = "TXBUF:";
 	std::vector<uint8_t> outgoingCmd(cmd.begin(), cmd.end());
 	kissEncapsulate(true, outgoingCmd);
@@ -306,7 +306,7 @@ void SatUI::MyForm::checkKissTNCBufferSize() {
 }
 
 
-void SatUI::MyForm::sendAX25Frames() {
+void GSUI::MyForm::sendAX25Frames() {
 	System::Threading::Thread::CurrentThread->Sleep(100);
 
 	//Adding High Priority Packets that are meant to be resent to the Out Buffer
@@ -357,7 +357,7 @@ void SatUI::MyForm::sendAX25Frames() {
 */
 
 //Function to check if a packet is High Priority(HP)
-bool SatUI::MyForm::isOutAX25PacketHP(std::vector<uint8_t> & frameToSend) {
+bool GSUI::MyForm::isOutAX25PacketHP(std::vector<uint8_t> & frameToSend) {
 	try {
 		if (frameToSend[0] == 'T') {
 			return ((frameToSend[1] == 'I') || (frameToSend[1] == 'B') || (frameToSend[1] == 'C'));
@@ -370,7 +370,7 @@ bool SatUI::MyForm::isOutAX25PacketHP(std::vector<uint8_t> & frameToSend) {
 }
 
 //Function that encapsulates frames that are high priority with an ID and 'HP' tag
-void SatUI::MyForm::HPAX25PacketEncapsulate(std::vector<uint8_t> AX25SatCallsignSSID, std::vector<uint8_t> & frameToSend) {
+void GSUI::MyForm::HPAX25PacketEncapsulate(std::vector<uint8_t> AX25SatCallsignSSID, std::vector<uint8_t> & frameToSend) {
 	if (isOutAX25PacketHP(frameToSend)) {
 		uint64_t HPID = timeSinceEpochMillisec();
 		insertSixtyFourBitIntInEightBitVector(frameToSend, frameToSend.begin(), HPID);
@@ -393,7 +393,7 @@ void SatUI::MyForm::HPAX25PacketEncapsulate(std::vector<uint8_t> AX25SatCallsign
 //Function that removes the 'HP' tag from received frames that are High Priority
 //	and sends back the corresponding ACK
 //It also checks if the received packet is an ACK
-void SatUI::MyForm::HPAX25PacketDecapsulate(std::vector<uint8_t> AX25SatCallsignSSID, std::vector<uint8_t> & receivedFrame) {
+void GSUI::MyForm::HPAX25PacketDecapsulate(std::vector<uint8_t> AX25SatCallsignSSID, std::vector<uint8_t> & receivedFrame) {
 	if ((receivedFrame.size() >= 11) && (receivedFrame[0] == 'H') && (receivedFrame[1] == 'P')) {
 		if (receivedFrame[2] == 'A') {
 			//Acknowledgement packet -> Remove from High Pririty packets to be resent

@@ -50,7 +50,7 @@
 
 
 
-void SatUI::MyForm::addPacket(FileTransfer * ft, std::vector<uint8_t> & packet) {
+void GSUI::MyForm::addPacket(FileTransfer * ft, std::vector<uint8_t> & packet) {
 	if (packet.size() < 8) //To avoid accessing outside vector size
 		return;
 	if ((packet[0] == 'T') && (packet[1] == 'D')) {
@@ -87,11 +87,11 @@ void SatUI::MyForm::addPacket(FileTransfer * ft, std::vector<uint8_t> & packet) 
 	}
 }
 
-std::vector<uint8_t> SatUI::MyForm::getInitializationPacket(FileTransfer * ft) {
+std::vector<uint8_t> GSUI::MyForm::getInitializationPacket(FileTransfer * ft) {
 	return ft->packets[0];
 }
 
-std::vector<uint8_t> SatUI::MyForm::getPacket(FileTransfer * ft, uint32_t index) {
+std::vector<uint8_t> GSUI::MyForm::getPacket(FileTransfer * ft, uint32_t index) {
 	if (index < ft->expectedPackets) {
 		return ft->packets[index + 1];
 	}
@@ -103,7 +103,7 @@ std::vector<uint8_t> SatUI::MyForm::getPacket(FileTransfer * ft, uint32_t index)
 	}
 }
 
-bool SatUI::MyForm::transferComplete(uint16_t tID, std::vector<uint8_t> AX25SatCallsignSSID) {
+bool GSUI::MyForm::transferComplete(uint16_t tID, std::vector<uint8_t> AX25SatCallsignSSID) {
 	///log("Transfer Complete Called with: rcv=" + std::to_string(ft->packetsReceived) + " and expctd=" + std::to_string(ft->expectedPackets));
 	if ((CommsNaSPUoN::incomingTransfers[tID].packetsReceived) >= (CommsNaSPUoN::incomingTransfers[tID].expectedPackets)) {
 		std::string outputPath = getDownlinkSavelocation();
@@ -141,7 +141,7 @@ bool SatUI::MyForm::transferComplete(uint16_t tID, std::vector<uint8_t> AX25SatC
 	}
 }
 
-FileTransfer SatUI::MyForm::initializeFileTransfer(bool incoming, std::vector<uint8_t> & initializerPacket) {
+FileTransfer GSUI::MyForm::initializeFileTransfer(bool incoming, std::vector<uint8_t> & initializerPacket) {
 	FileTransfer ft;
 	ft.ready = false;
 	if (initializerPacket.size() < 4) //To avoid accessing outside vector size
@@ -219,7 +219,7 @@ FileTransfer SatUI::MyForm::initializeFileTransfer(bool incoming, std::vector<ui
 }*/
 
 
-void SatUI::MyForm::sendRFPacket(std::vector<uint8_t> AX25SatCallsignSSID, std::vector<uint8_t> & packet) {
+void GSUI::MyForm::sendRFPacket(std::vector<uint8_t> AX25SatCallsignSSID, std::vector<uint8_t> & packet) {
 	//This function sends an RF packet with either or both the XBee and/or StenSat
 	if (packet.size() > 1) {
 		sendRFPacketAX25(AX25SatCallsignSSID, packet);
@@ -229,7 +229,7 @@ void SatUI::MyForm::sendRFPacket(std::vector<uint8_t> AX25SatCallsignSSID, std::
 	}
 }
 
-void SatUI::MyForm::uplinkTransfer(std::vector<uint8_t> AX25SatCallsignSSID, uint16_t tID, System::ComponentModel::DoWorkEventArgs^  e) {
+void GSUI::MyForm::uplinkTransfer(std::vector<uint8_t> AX25SatCallsignSSID, uint16_t tID, System::ComponentModel::DoWorkEventArgs^  e) {
 	log("CommHndl -> Beginning outgoing transfer of tID " + std::to_string(tID) + ".");
 	std::vector<uint8_t> pck;
 	uint32_t expectedPackets = CommsNaSPUoN::outgoingTransfers[tID].expectedPackets;
@@ -258,7 +258,7 @@ void SatUI::MyForm::uplinkTransfer(std::vector<uint8_t> AX25SatCallsignSSID, uin
 	uplinkProgressBarUpdate(100);
 }
 
-void SatUI::MyForm::downlinkPartRequestTransfer(std::vector<uint8_t> AX25SatCallsignSSID, uint16_t tID, System::ComponentModel::DoWorkEventArgs^  e) {
+void GSUI::MyForm::downlinkPartRequestTransfer(std::vector<uint8_t> AX25SatCallsignSSID, uint16_t tID, System::ComponentModel::DoWorkEventArgs^  e) {
 
 	uint32_t expectedPackets = CommsNaSPUoN::incomingTransfers[tID].expectedPackets;
 	std::vector<uint8_t> pck;
@@ -294,7 +294,7 @@ void SatUI::MyForm::downlinkPartRequestTransfer(std::vector<uint8_t> AX25SatCall
 	sendRFPacket(AX25SatCallsignSSID, pck);
 }
 
-void SatUI::MyForm::processIncomingPayload(std::vector<uint8_t> AX25SatCallsignSSID, std::vector<uint8_t> & payload) {
+void GSUI::MyForm::processIncomingPayload(std::vector<uint8_t> AX25SatCallsignSSID, std::vector<uint8_t> & payload) {
 	try {
 		//To prevent the receive thread closing because of an error in processing a payload
 		if (payload.size() < 2) //To avoid accessing outside vector size
@@ -602,7 +602,7 @@ void SatUI::MyForm::processIncomingPayload(std::vector<uint8_t> AX25SatCallsignS
 }
 
 
-std::vector< std::vector<uint8_t> > SatUI::MyForm::transferOutPacketsConstruction(uint16_t tID, std::string fileName, std::vector<uint8_t> & file) {
+std::vector< std::vector<uint8_t> > GSUI::MyForm::transferOutPacketsConstruction(uint16_t tID, std::string fileName, std::vector<uint8_t> & file) {
 	//This function splits a file into packets and adds headers to the packets and adds an extra transfer initialization packet
 	//The initialization packet relates the transferId to the filename and should be sent and
 	//	acknowledged before all other packets begin to be sent
@@ -639,7 +639,7 @@ std::vector< std::vector<uint8_t> > SatUI::MyForm::transferOutPacketsConstructio
 	return packets;
 }
 
-void SatUI::MyForm::cancelIncomingTransfer(uint16_t tID) {
+void GSUI::MyForm::cancelIncomingTransfer(uint16_t tID) {
 	if (this->backgroundWorker_DownlinkPartRequest->IsBusy) {
 		backgroundWorker_DownlinkPartRequest->CancelAsync();
 		System::Threading::Thread::CurrentThread->Sleep(50); //Stall for backgroundWorker_DownlinkPartRequest to stop
@@ -656,7 +656,7 @@ void SatUI::MyForm::cancelIncomingTransfer(uint16_t tID) {
 	}
 }
 
-void SatUI::MyForm::newOutgoingTransfer(std::vector<uint8_t> AX25SatCallsignSSID, std::string fileNameWithPath) {
+void GSUI::MyForm::newOutgoingTransfer(std::vector<uint8_t> AX25SatCallsignSSID, std::string fileNameWithPath) {
 	FileTransfer ft;
 
 	std::string fileName = "";
@@ -682,7 +682,7 @@ void SatUI::MyForm::newOutgoingTransfer(std::vector<uint8_t> AX25SatCallsignSSID
 	}
 }
 
-void SatUI::MyForm::cancelOutgoingTransfer(uint16_t tID) {
+void GSUI::MyForm::cancelOutgoingTransfer(uint16_t tID) {
 	if (this->backgroundWorker_Uplink->IsBusy) {
 		backgroundWorker_Uplink->CancelAsync();
 		System::Threading::Thread::CurrentThread->Sleep(50); //Stall for backgroundWorker_Uplink to stop
@@ -695,7 +695,7 @@ void SatUI::MyForm::cancelOutgoingTransfer(uint16_t tID) {
 	}
 }
 
-void SatUI::MyForm::cancelAllTransfers() {
+void GSUI::MyForm::cancelAllTransfers() {
 	if (this->backgroundWorker_Uplink->IsBusy) {
 		backgroundWorker_Uplink->CancelAsync();
 		System::Threading::Thread::CurrentThread->Sleep(50); //Stall for backgroundWorker_Uplink to stop
@@ -720,7 +720,7 @@ void SatUI::MyForm::cancelAllTransfers() {
 	}
 	log("CommHndl -> All incomplete transfers have been deleted successfully.");
 
-	for (cliext::map<uint16_t, IncomingTransfer^>::iterator it = transferForms->begin(); it != transferForms->end(); it++) {
+	for (cliext::map<uint16_t, DownlinkTransfer^>::iterator it = transferForms->begin(); it != transferForms->end(); it++) {
 		transferForms->erase(it);
 	}
 	uplinkComplete(false);
