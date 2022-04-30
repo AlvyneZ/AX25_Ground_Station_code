@@ -1,4 +1,4 @@
-  GSUI.IncomingTransfer.resources - Embedded, ContainedInManifestFile, 
+  GSUI.DownlinkTransfer.resources - Embedded, ContainedInManifestFile, 
   GSUI.MyForm.resources - Embedded, ContainedInManifestFile, 
   GSUI.AboutDialog.resources - Embedded, ContainedInManifestFile, 
 ImageRuntimeVersion: v4.0.30319

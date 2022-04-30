@@ -11,6 +11,7 @@
 
 #include <ctime>
 #include <string>
+#include <cliext/map>
 
 
 std::string generateTimestamp() {
@@ -49,9 +50,14 @@ void GSUI::MyForm::log(std::string message) {
 		if (backgroundWorker_Uplink->IsBusy)
 			this->backgroundWorker_Uplink->ReportProgress(1, messageSys);
 	}
-	else if (System::Threading::Thread::CurrentThread->ManagedThreadId == this->DownlinkPtRqThreadID) {
-		if (backgroundWorker_DownlinkPartRequest->IsBusy)
-			this->backgroundWorker_DownlinkPartRequest->ReportProgress(1, messageSys);
+	else {
+		int thread = System::Threading::Thread::CurrentThread->ManagedThreadId;
+		for (cliext::map<uint16_t, int>::iterator it = DownlinkPtRqThreadID->begin(); it != DownlinkPtRqThreadID->end(); it++) {
+			if (thread == it->second) {
+				if (backgroundWorker_DownlinkPartRequest[it->first]->IsBusy)
+					this->backgroundWorker_DownlinkPartRequest[it->first]->ReportProgress(1, messageSys);
+			}
+		}
 	}
 }
 
@@ -70,9 +76,14 @@ void GSUI::MyForm::logErr(std::string message) {
 		if (backgroundWorker_Uplink->IsBusy)
 			this->backgroundWorker_Uplink->ReportProgress(2, messageSys);
 	}
-	else if (System::Threading::Thread::CurrentThread->ManagedThreadId == this->DownlinkPtRqThreadID) {
-		if (backgroundWorker_DownlinkPartRequest->IsBusy)
-			this->backgroundWorker_DownlinkPartRequest->ReportProgress(2, messageSys);
+	else {
+		int thread = System::Threading::Thread::CurrentThread->ManagedThreadId;
+		for (cliext::map<uint16_t, int>::iterator it = DownlinkPtRqThreadID->begin(); it != DownlinkPtRqThreadID->end(); it++) {
+			if (thread == it->second) {
+				if (backgroundWorker_DownlinkPartRequest[it->first]->IsBusy)
+					this->backgroundWorker_DownlinkPartRequest[it->first]->ReportProgress(2, messageSys);
+			}
+		}
 	}
 }
 

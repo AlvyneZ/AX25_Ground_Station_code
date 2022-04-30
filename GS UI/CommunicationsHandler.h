@@ -12,6 +12,7 @@
 #include <map>
 #include <fstream>
 #include <string>
+#include <cliext/map>
 
 #include "Logger.h"
 #include "fileOperations.h"
@@ -118,8 +119,8 @@ bool GSUI::MyForm::transferComplete(uint16_t tID, std::vector<uint8_t> AX25SatCa
 		return true;
 	}
 	else {
-		if (backgroundWorker_DownlinkPartRequest->IsBusy) {
-			backgroundWorker_DownlinkPartRequest->CancelAsync();
+		if ((backgroundWorker_DownlinkPartRequest->count(tID)) && (backgroundWorker_DownlinkPartRequest[tID]->IsBusy)) {
+			backgroundWorker_DownlinkPartRequest[tID]->CancelAsync();
 			log("CommHndl -> Cancelled downlink part request thread to allow for a new downlink part request transfer.");
 			//Stalling to allow the thread to stop
 			System::Threading::Thread::CurrentThread->Sleep(100);
@@ -264,7 +265,7 @@ void GSUI::MyForm::downlinkPartRequestTransfer(std::vector<uint8_t> AX25SatCalls
 	std::vector<uint8_t> pck;
 	uint8_t lastFrameID;
 	for (uint32_t i = 0; i < expectedPackets; i++) {
-		if (this->backgroundWorker_DownlinkPartRequest->CancellationPending) {
+		if (this->backgroundWorker_DownlinkPartRequest[tID]->CancellationPending) {
 			e->Cancel = true;
 			return;
 		}
@@ -279,7 +280,7 @@ void GSUI::MyForm::downlinkPartRequestTransfer(std::vector<uint8_t> AX25SatCalls
 			sendRFPacket(AX25SatCallsignSSID, pck);
 
 			while (KISS::awaitTNC || (KISS::kissOutBuffer.size() > KISS_OUT_BUFFER_LIMIT)) {
-				if (this->backgroundWorker_DownlinkPartRequest->CancellationPending) {
+				if (this->backgroundWorker_DownlinkPartRequest[tID]->CancellationPending) {
 					e->Cancel = true;
 					return;
 				}
@@ -640,9 +641,11 @@ std::vector< std::vector<uint8_t> > GSUI::MyForm::transferOutPacketsConstruction
 }
 
 void GSUI::MyForm::cancelIncomingTransfer(uint16_t tID) {
-	if (this->backgroundWorker_DownlinkPartRequest->IsBusy) {
-		backgroundWorker_DownlinkPartRequest->CancelAsync();
-		System::Threading::Thread::CurrentThread->Sleep(50); //Stall for backgroundWorker_DownlinkPartRequest to stop
+	if (this->backgroundWorker_DownlinkPartRequest->count(tID)) {
+		if (this->backgroundWorker_DownlinkPartRequest[tID]->IsBusy) {
+			backgroundWorker_DownlinkPartRequest[tID]->CancelAsync();
+			System::Threading::Thread::CurrentThread->Sleep(50); //Stall for backgroundWorker_DownlinkPartRequest to stop
+		}
 	}
 	if (CommsNaSPUoN::incomingTransfers.count(tID)) {
 		CommsNaSPUoN::incomingTransfers.erase(tID);
@@ -700,9 +703,13 @@ void GSUI::MyForm::cancelAllTransfers() {
 		backgroundWorker_Uplink->CancelAsync();
 		System::Threading::Thread::CurrentThread->Sleep(50); //Stall for backgroundWorker_Uplink to stop
 	}
-	if (this->backgroundWorker_DownlinkPartRequest->IsBusy) {
-		backgroundWorker_DownlinkPartRequest->CancelAsync();
-		System::Threading::Thread::CurrentThread->Sleep(50); //Stall for backgroundWorker_DownlinkPartRequest to stop
+
+	for (cliext::map<uint16_t, System::ComponentModel::BackgroundWorker^>::iterator it = backgroundWorker_DownlinkPartRequest->begin(); it != backgroundWorker_DownlinkPartRequest->end(); it++) {
+		if (it->second->IsBusy) {
+			it->second->CancelAsync();
+			System::Threading::Thread::CurrentThread->Sleep(50); //Stall for backgroundWorker_DownlinkPartRequest to stop
+		}
+		backgroundWorker_DownlinkPartRequest->erase(it);
 	}
 
 	std::vector<uint8_t> payload;

@@ -1,21 +1,19 @@
-﻿  IncomingTransfer.cpp
-  MyForm.cpp
-c:\users\alvynez\source\repos\gsui ax25\gs ui\myform.h(126): warning C4677: 'transferForms': signature of non-private member contains assembly private type 'cliext::map<uint16_t,GSUI::DownlinkTransfer ^>'
-  c:\users\alvynez\source\repos\gsui ax25\gs ui\myform.h(126): note: see declaration of 'cliext::map<uint16_t,GSUI::DownlinkTransfer ^>'
-c:\users\alvynez\source\repos\gsui ax25\gs ui\logger.h(20): warning C4996: 'localtime': This function or variable may be unsafe. Consider using localtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+﻿  MyForm.cpp
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\myform.h(127): warning C4677: 'transferForms': signature of non-private member contains assembly private type 'cliext::map<uint16_t,GSUI::DownlinkTransfer ^>'
+  c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\myform.h(127): note: see declaration of 'cliext::map<uint16_t,GSUI::DownlinkTransfer ^>'
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\logger.h(21): warning C4996: 'localtime': This function or variable may be unsafe. Consider using localtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\time.h(506): note: see declaration of 'localtime'
-c:\users\alvynez\source\repos\gsui ax25\gs ui\ax25communication.h(49): warning C4018: '<': signed/unsigned mismatch
-c:\users\alvynez\source\repos\gsui ax25\gs ui\ax25communication.h(133): warning C4018: '<': signed/unsigned mismatch
-c:\users\alvynez\source\repos\gsui ax25\gs ui\ax25communication.h(212): warning C4018: '>=': signed/unsigned mismatch
-c:\users\alvynez\source\repos\gsui ax25\gs ui\ax25communication.h(238): warning C4018: '<': signed/unsigned mismatch
-c:\users\alvynez\source\repos\gsui ax25\gs ui\ax25communication.h(270): warning C4018: '<': signed/unsigned mismatch
-c:\users\alvynez\source\repos\gsui ax25\gs ui\ax25communication.h(279): warning C4018: '<': signed/unsigned mismatch
-c:\users\alvynez\source\repos\gsui ax25\gs ui\ax25communication.h(337): warning C4018: '<': signed/unsigned mismatch
-c:\users\alvynez\source\repos\gsui ax25\gs ui\communicationshandler.h(131): warning C4018: '<': signed/unsigned mismatch
-c:\users\alvynez\source\repos\gsui ax25\gs ui\communicationshandler.h(236): warning C4101: 'lastFrameID': unreferenced local variable
-c:\users\alvynez\source\repos\gsui ax25\gs ui\communicationshandler.h(265): warning C4101: 'lastFrameID': unreferenced local variable
-c:\users\alvynez\source\repos\gsui ax25\gs ui\communicationshandler.h(392): warning C4018: '<': signed/unsigned mismatch
-c:\users\alvynez\source\repos\gsui ax25\gs ui\communicationshandler.h(578): warning C4996: 'localtime': This function or variable may be unsafe. Consider using localtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\ax25communication.h(49): warning C4018: '<': signed/unsigned mismatch
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\ax25communication.h(133): warning C4018: '<': signed/unsigned mismatch
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\ax25communication.h(212): warning C4018: '>=': signed/unsigned mismatch
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\ax25communication.h(238): warning C4018: '<': signed/unsigned mismatch
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\ax25communication.h(270): warning C4018: '<': signed/unsigned mismatch
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\ax25communication.h(279): warning C4018: '<': signed/unsigned mismatch
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\ax25communication.h(337): warning C4018: '<': signed/unsigned mismatch
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\communicationshandler.h(132): warning C4018: '<': signed/unsigned mismatch
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\communicationshandler.h(237): warning C4101: 'lastFrameID': unreferenced local variable
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\communicationshandler.h(266): warning C4101: 'lastFrameID': unreferenced local variable
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\communicationshandler.h(393): warning C4018: '<': signed/unsigned mismatch
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\communicationshandler.h(579): warning C4996: 'localtime': This function or variable may be unsafe. Consider using localtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\time.h(506): note: see declaration of 'localtime'
-  Generating Code...
-  GS UI.vcxproj -> C:\Users\AlvyneZ\source\repos\GSUI AX25\Release\GS_UI.exe
+  GS UI.vcxproj -> C:\Users\AlvyneZ\Desktop\school\5th Year\Project\Code\GSUI AX25\Release\GS_UI.exe

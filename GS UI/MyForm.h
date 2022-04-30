@@ -50,6 +50,7 @@ namespace GSUI {
 			this->HPAX25Mutex = gcnew System::Object();
 			this->UIThreadID = System::Threading::Thread::CurrentThread->ManagedThreadId;
 			this->transferForms = gcnew cliext::map<uint16_t, DownlinkTransfer^>();
+			this->backgroundWorker_DownlinkPartRequest = gcnew cliext::map<uint16_t, System::ComponentModel::BackgroundWorker^>();
 			//
 		}
 
@@ -94,7 +95,7 @@ namespace GSUI {
 	private: System::Windows::Forms::ProgressBar^  progressBar_uplink;
 	private: System::ComponentModel::BackgroundWorker^  backgroundWorker_Uplink;
 
-	private: System::ComponentModel::BackgroundWorker^  backgroundWorker_DownlinkPartRequest;
+	private: cliext::map<uint16_t, System::ComponentModel::BackgroundWorker^>^  backgroundWorker_DownlinkPartRequest;
 	private: System::Windows::Forms::TextBox^  textBox_AX25SatCallsign;
 
 	private: System::Windows::Forms::Label^  label_AX25Callsign;
@@ -136,7 +137,8 @@ namespace GSUI {
 		System::Object^ HPAX25Mutex;
 		uint16_t currentDownlinkTransferID, currentUplinkTransferID;
 		System::String^ downlinkSavelocation;
-		int UIThreadID, receiverThreadID, UplinkThreadID, DownlinkPtRqThreadID;
+		int UIThreadID, receiverThreadID, UplinkThreadID;
+		cliext::map<uint16_t, int>^ DownlinkPtRqThreadID;
 		AboutDialog^ about;
 	private: System::Windows::Forms::Button^  button_about;
 private: System::Windows::Forms::ComboBox^  comboBox_TNCPort;
@@ -191,7 +193,6 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			this->backgroundWorker_Receiver = (gcnew System::ComponentModel::BackgroundWorker());
 			this->progressBar_uplink = (gcnew System::Windows::Forms::ProgressBar());
 			this->backgroundWorker_Uplink = (gcnew System::ComponentModel::BackgroundWorker());
-			this->backgroundWorker_DownlinkPartRequest = (gcnew System::ComponentModel::BackgroundWorker());
 			this->textBox_AX25SatCallsign = (gcnew System::Windows::Forms::TextBox());
 			this->label_AX25Callsign = (gcnew System::Windows::Forms::Label());
 			this->button_uplinkCancel = (gcnew System::Windows::Forms::Button());
@@ -468,13 +469,6 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			this->backgroundWorker_Uplink->DoWork += gcnew System::ComponentModel::DoWorkEventHandler(this, &MyForm::backgroundWorker_Uplink_DoWork);
 			this->backgroundWorker_Uplink->ProgressChanged += gcnew System::ComponentModel::ProgressChangedEventHandler(this, &MyForm::backgroundWorker_Uplink_ProgressChanged);
 			this->backgroundWorker_Uplink->RunWorkerCompleted += gcnew System::ComponentModel::RunWorkerCompletedEventHandler(this, &MyForm::backgroundWorker_Uplink_RunWorkerCompleted);
-			// 
-			// backgroundWorker_DownlinkPartRequest
-			// 
-			this->backgroundWorker_DownlinkPartRequest->WorkerReportsProgress = true;
-			this->backgroundWorker_DownlinkPartRequest->WorkerSupportsCancellation = true;
-			this->backgroundWorker_DownlinkPartRequest->DoWork += gcnew System::ComponentModel::DoWorkEventHandler(this, &MyForm::backgroundWorker_DownlinkPartRequest_DoWork);
-			this->backgroundWorker_DownlinkPartRequest->ProgressChanged += gcnew System::ComponentModel::ProgressChangedEventHandler(this, &MyForm::backgroundWorker_DownlinkPartRequest_ProgressChanged);
 			// 
 			// textBox_AX25SatCallsign
 			// 
@@ -1143,8 +1137,26 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			//Function to make sure the UIThread is the one that starts the Downlink Part request background worker
 			private: void startBackgroundWorkerDownlinkPartRequest(System::Object^ args) {
 				if (System::Threading::Thread::CurrentThread->ManagedThreadId == this->UIThreadID) {
-					if (!(this->backgroundWorker_DownlinkPartRequest->IsBusy)) {
-						this->backgroundWorker_DownlinkPartRequest->RunWorkerAsync(args);
+					array<uint8_t>^ argsArray = safe_cast<array<uint8_t>^>(args);
+					uint16_t tID = (argsArray[0] << 8) + argsArray[1];
+					if (backgroundWorker_DownlinkPartRequest->count(tID)) {
+						//If the backgroundWorker already exists
+						if (!(this->backgroundWorker_DownlinkPartRequest[tID]->IsBusy)) {
+							this->backgroundWorker_DownlinkPartRequest[tID]->RunWorkerAsync(args);
+						}
+					}
+					else {
+						//Create the backgroundWorker and initialize it
+						this->backgroundWorker_DownlinkPartRequest[tID] = (gcnew System::ComponentModel::BackgroundWorker());
+						// 
+						// backgroundWorker_DownlinkPartRequest
+						// 
+						this->backgroundWorker_DownlinkPartRequest[tID]->WorkerReportsProgress = true;
+						this->backgroundWorker_DownlinkPartRequest[tID]->WorkerSupportsCancellation = true;
+						this->backgroundWorker_DownlinkPartRequest[tID]->DoWork += gcnew System::ComponentModel::DoWorkEventHandler(this, &MyForm::backgroundWorker_DownlinkPartRequest_DoWork);
+						this->backgroundWorker_DownlinkPartRequest[tID]->ProgressChanged += gcnew System::ComponentModel::ProgressChangedEventHandler(this, &MyForm::backgroundWorker_DownlinkPartRequest_ProgressChanged);
+						//Run the backgroundworker
+						this->backgroundWorker_DownlinkPartRequest[tID]->RunWorkerAsync(args);
 					}
 				}
 				else if (System::Threading::Thread::CurrentThread->ManagedThreadId == this->receiverThreadID) {
@@ -1154,15 +1166,18 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 
 			//Thread for Downlink part request
 			private: System::Void backgroundWorker_DownlinkPartRequest_DoWork(System::Object^  sender, System::ComponentModel::DoWorkEventArgs^  e) {
+				array<uint8_t>^ args = safe_cast<array<uint8_t>^>(e->Argument);
+				uint16_t tID = (args[0] << 8) + args[1];
 
 				//Saving downlink part request thread ID to UI thread to enable for output to form's controls that are owned by the UIThread
 				int dwnlnkPtRqThrdID = System::Threading::Thread::CurrentThread->ManagedThreadId;
-				backgroundWorker_DownlinkPartRequest->ReportProgress(10, dwnlnkPtRqThrdID);
+				array<int>^ argsThreadID = gcnew array<int>(2);
+				argsThreadID[0] = (int)(tID);
+				argsThreadID[1] = dwnlnkPtRqThrdID;
+				backgroundWorker_DownlinkPartRequest[tID]->ReportProgress(10, argsThreadID);
 				//Stalling for the DownlinkPtRqThreadID to be updated
 				System::Threading::Thread::CurrentThread->Sleep(100);
 
-				array<uint8_t>^ args = safe_cast<array<uint8_t>^>(e->Argument);
-				uint16_t tID = (args[0] << 8) + args[1];
 				std::vector<uint8_t> AX25SatCallsignSSID;
 				for (int i = 2; ((i < args->Length) && (i < 9)); i++) {
 					if (args[i] != ';')
@@ -1176,7 +1191,10 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			private: System::Void backgroundWorker_DownlinkPartRequest_ProgressChanged(System::Object^  sender, System::ComponentModel::ProgressChangedEventArgs^  e) {
 				if (e->ProgressPercentage == 10) {
 					//For the system to know the threadID of the DownlinkPartRequest_BackgroundWorker
-					this->DownlinkPtRqThreadID = safe_cast<int>(e->UserState);
+					array<int>^ args = safe_cast<array<int>^>(e->UserState);
+					uint16_t tID = args[0];
+					int dwnlnkPtRqThrdID = args[1];
+					this->DownlinkPtRqThreadID[tID] = dwnlnkPtRqThrdID;
 				}
 				else if (e->ProgressPercentage == 1) {
 					//For the receiverBackgroundWorker to be able to log to the richTextBox
