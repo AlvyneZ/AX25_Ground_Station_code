@@ -215,7 +215,7 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			this->comboBox_COMPort->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
 			this->comboBox_COMPort->FormattingEnabled = true;
 			this->comboBox_COMPort->Location = System::Drawing::Point(101, 27);
-			this->comboBox_COMPort->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->comboBox_COMPort->Margin = System::Windows::Forms::Padding(4);
 			this->comboBox_COMPort->Name = L"comboBox_COMPort";
 			this->comboBox_COMPort->Size = System::Drawing::Size(160, 24);
 			this->comboBox_COMPort->TabIndex = 0;
@@ -240,7 +240,7 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 					L"38400", L"57600", L"115200", L"230400"
 			});
 			this->comboBox_Baud->Location = System::Drawing::Point(101, 60);
-			this->comboBox_Baud->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->comboBox_Baud->Margin = System::Windows::Forms::Padding(4);
 			this->comboBox_Baud->Name = L"comboBox_Baud";
 			this->comboBox_Baud->Size = System::Drawing::Size(160, 24);
 			this->comboBox_Baud->TabIndex = 2;
@@ -260,7 +260,7 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			this->button_initPort->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
 			this->button_initPort->Location = System::Drawing::Point(272, 39);
-			this->button_initPort->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->button_initPort->Margin = System::Windows::Forms::Padding(4);
 			this->button_initPort->Name = L"button_initPort";
 			this->button_initPort->Size = System::Drawing::Size(155, 64);
 			this->button_initPort->TabIndex = 4;
@@ -274,7 +274,7 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			this->button_closePort->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Regular,
 				System::Drawing::GraphicsUnit::Point, static_cast<System::Byte>(0)));
 			this->button_closePort->Location = System::Drawing::Point(484, 42);
-			this->button_closePort->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->button_closePort->Margin = System::Windows::Forms::Padding(4);
 			this->button_closePort->Name = L"button_closePort";
 			this->button_closePort->Size = System::Drawing::Size(151, 60);
 			this->button_closePort->TabIndex = 5;
@@ -285,7 +285,7 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			// richTextBox_output
 			// 
 			this->richTextBox_output->Location = System::Drawing::Point(484, 164);
-			this->richTextBox_output->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->richTextBox_output->Margin = System::Windows::Forms::Padding(4);
 			this->richTextBox_output->Name = L"richTextBox_output";
 			this->richTextBox_output->ReadOnly = true;
 			this->richTextBox_output->Size = System::Drawing::Size(652, 456);
@@ -296,7 +296,7 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			// 
 			this->button_imagesTaken->Enabled = false;
 			this->button_imagesTaken->Location = System::Drawing::Point(79, 164);
-			this->button_imagesTaken->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->button_imagesTaken->Margin = System::Windows::Forms::Padding(4);
 			this->button_imagesTaken->Name = L"button_imagesTaken";
 			this->button_imagesTaken->Size = System::Drawing::Size(319, 28);
 			this->button_imagesTaken->TabIndex = 7;
@@ -308,7 +308,7 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			// 
 			this->button_LoRaPackets->Enabled = false;
 			this->button_LoRaPackets->Location = System::Drawing::Point(79, 199);
-			this->button_LoRaPackets->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->button_LoRaPackets->Margin = System::Windows::Forms::Padding(4);
 			this->button_LoRaPackets->Name = L"button_LoRaPackets";
 			this->button_LoRaPackets->Size = System::Drawing::Size(319, 28);
 			this->button_LoRaPackets->TabIndex = 8;
@@ -320,7 +320,7 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			// 
 			this->button_saveLogFile->Enabled = false;
 			this->button_saveLogFile->Location = System::Drawing::Point(79, 235);
-			this->button_saveLogFile->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->button_saveLogFile->Margin = System::Windows::Forms::Padding(4);
 			this->button_saveLogFile->Name = L"button_saveLogFile";
 			this->button_saveLogFile->Size = System::Drawing::Size(319, 28);
 			this->button_saveLogFile->TabIndex = 9;
@@ -332,7 +332,7 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			// 
 			this->button_oldLogFiles->Enabled = false;
 			this->button_oldLogFiles->Location = System::Drawing::Point(79, 271);
-			this->button_oldLogFiles->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->button_oldLogFiles->Margin = System::Windows::Forms::Padding(4);
 			this->button_oldLogFiles->Name = L"button_oldLogFiles";
 			this->button_oldLogFiles->Size = System::Drawing::Size(319, 28);
 			this->button_oldLogFiles->TabIndex = 10;
@@ -344,7 +344,7 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			// 
 			this->button_houseKeepingData->Enabled = false;
 			this->button_houseKeepingData->Location = System::Drawing::Point(79, 368);
-			this->button_houseKeepingData->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->button_houseKeepingData->Margin = System::Windows::Forms::Padding(4);
 			this->button_houseKeepingData->Name = L"button_houseKeepingData";
 			this->button_houseKeepingData->Size = System::Drawing::Size(319, 52);
 			this->button_houseKeepingData->TabIndex = 11;
@@ -356,7 +356,7 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			// 
 			this->button_downlinkRequest->Enabled = false;
 			this->button_downlinkRequest->Location = System::Drawing::Point(319, 452);
-			this->button_downlinkRequest->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->button_downlinkRequest->Margin = System::Windows::Forms::Padding(4);
 			this->button_downlinkRequest->Name = L"button_downlinkRequest";
 			this->button_downlinkRequest->Size = System::Drawing::Size(143, 58);
 			this->button_downlinkRequest->TabIndex = 12;
@@ -369,7 +369,7 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			this->comboBox_downlinkFileName->Enabled = false;
 			this->comboBox_downlinkFileName->FormattingEnabled = true;
 			this->comboBox_downlinkFileName->Location = System::Drawing::Point(44, 473);
-			this->comboBox_downlinkFileName->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->comboBox_downlinkFileName->Margin = System::Windows::Forms::Padding(4);
 			this->comboBox_downlinkFileName->Name = L"comboBox_downlinkFileName";
 			this->comboBox_downlinkFileName->Size = System::Drawing::Size(265, 24);
 			this->comboBox_downlinkFileName->TabIndex = 13;
@@ -398,7 +398,7 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			// 
 			this->button_uplinkRequest->Enabled = false;
 			this->button_uplinkRequest->Location = System::Drawing::Point(319, 529);
-			this->button_uplinkRequest->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->button_uplinkRequest->Margin = System::Windows::Forms::Padding(4);
 			this->button_uplinkRequest->Name = L"button_uplinkRequest";
 			this->button_uplinkRequest->Size = System::Drawing::Size(143, 82);
 			this->button_uplinkRequest->TabIndex = 15;
@@ -410,13 +410,13 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			// 
 			this->textBox_uplinkFileName->Enabled = false;
 			this->textBox_uplinkFileName->Location = System::Drawing::Point(44, 549);
-			this->textBox_uplinkFileName->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->textBox_uplinkFileName->Margin = System::Windows::Forms::Padding(4);
 			this->textBox_uplinkFileName->Multiline = true;
 			this->textBox_uplinkFileName->Name = L"textBox_uplinkFileName";
 			this->textBox_uplinkFileName->ScrollBars = System::Windows::Forms::ScrollBars::Vertical;
 			this->textBox_uplinkFileName->Size = System::Drawing::Size(265, 50);
 			this->textBox_uplinkFileName->TabIndex = 18;
-			this->textBox_uplinkFileName->Text = L"%USERPROFILE%\\Desktop\\downlinks\\im\\testImage2.png";
+			this->textBox_uplinkFileName->Text = L"%USERPROFILE%\\Desktop\\NaSPUoN transfers\\GS\\uplinks\\Icon.ico";
 			// 
 			// groupBox_Initialization
 			// 
@@ -430,9 +430,9 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			this->groupBox_Initialization->Controls->Add(this->label_COMPort);
 			this->groupBox_Initialization->Controls->Add(this->comboBox_COMPort);
 			this->groupBox_Initialization->Location = System::Drawing::Point(117, 6);
-			this->groupBox_Initialization->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->groupBox_Initialization->Margin = System::Windows::Forms::Padding(4);
 			this->groupBox_Initialization->Name = L"groupBox_Initialization";
-			this->groupBox_Initialization->Padding = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->groupBox_Initialization->Padding = System::Windows::Forms::Padding(4);
 			this->groupBox_Initialization->Size = System::Drawing::Size(643, 146);
 			this->groupBox_Initialization->TabIndex = 19;
 			this->groupBox_Initialization->TabStop = false;
@@ -447,7 +447,7 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 					L"7", L"8", L"9", L"A", L"B", L"C", L"D", L"E", L"F"
 			});
 			this->comboBox_TNCPort->Location = System::Drawing::Point(101, 94);
-			this->comboBox_TNCPort->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->comboBox_TNCPort->Margin = System::Windows::Forms::Padding(4);
 			this->comboBox_TNCPort->Name = L"comboBox_TNCPort";
 			this->comboBox_TNCPort->Size = System::Drawing::Size(160, 24);
 			this->comboBox_TNCPort->TabIndex = 33;
@@ -465,7 +465,7 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			// progressBar_PortOpenSatus
 			// 
 			this->progressBar_PortOpenSatus->Location = System::Drawing::Point(435, 60);
-			this->progressBar_PortOpenSatus->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->progressBar_PortOpenSatus->Margin = System::Windows::Forms::Padding(4);
 			this->progressBar_PortOpenSatus->Name = L"progressBar_PortOpenSatus";
 			this->progressBar_PortOpenSatus->Size = System::Drawing::Size(41, 22);
 			this->progressBar_PortOpenSatus->TabIndex = 6;
@@ -481,7 +481,7 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			// progressBar_uplink
 			// 
 			this->progressBar_uplink->Location = System::Drawing::Point(44, 602);
-			this->progressBar_uplink->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->progressBar_uplink->Margin = System::Windows::Forms::Padding(4);
 			this->progressBar_uplink->Name = L"progressBar_uplink";
 			this->progressBar_uplink->Size = System::Drawing::Size(267, 10);
 			this->progressBar_uplink->TabIndex = 20;
@@ -498,7 +498,7 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			// 
 			this->textBox_AX25SatCallsign->CharacterCasing = System::Windows::Forms::CharacterCasing::Upper;
 			this->textBox_AX25SatCallsign->Location = System::Drawing::Point(975, 37);
-			this->textBox_AX25SatCallsign->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->textBox_AX25SatCallsign->Margin = System::Windows::Forms::Padding(4);
 			this->textBox_AX25SatCallsign->MaxLength = 16;
 			this->textBox_AX25SatCallsign->Name = L"textBox_AX25SatCallsign";
 			this->textBox_AX25SatCallsign->Size = System::Drawing::Size(76, 22);
@@ -524,7 +524,7 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			this->button_uplinkCancel->Enabled = false;
 			this->button_uplinkCancel->ForeColor = System::Drawing::SystemColors::ControlText;
 			this->button_uplinkCancel->Location = System::Drawing::Point(239, 517);
-			this->button_uplinkCancel->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->button_uplinkCancel->Margin = System::Windows::Forms::Padding(4);
 			this->button_uplinkCancel->Name = L"button_uplinkCancel";
 			this->button_uplinkCancel->Size = System::Drawing::Size(72, 28);
 			this->button_uplinkCancel->TabIndex = 25;
@@ -547,7 +547,7 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			// 
 			this->textBox_AX25SatSSID->CharacterCasing = System::Windows::Forms::CharacterCasing::Upper;
 			this->textBox_AX25SatSSID->Location = System::Drawing::Point(975, 11);
-			this->textBox_AX25SatSSID->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->textBox_AX25SatSSID->Margin = System::Windows::Forms::Padding(4);
 			this->textBox_AX25SatSSID->MaxLength = 4;
 			this->textBox_AX25SatSSID->Name = L"textBox_AX25SatSSID";
 			this->textBox_AX25SatSSID->Size = System::Drawing::Size(76, 22);
@@ -559,13 +559,13 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			// textBox_DownlinkSaveLocation
 			// 
 			this->textBox_DownlinkSaveLocation->Location = System::Drawing::Point(800, 97);
-			this->textBox_DownlinkSaveLocation->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->textBox_DownlinkSaveLocation->Margin = System::Windows::Forms::Padding(4);
 			this->textBox_DownlinkSaveLocation->Multiline = true;
 			this->textBox_DownlinkSaveLocation->Name = L"textBox_DownlinkSaveLocation";
 			this->textBox_DownlinkSaveLocation->ScrollBars = System::Windows::Forms::ScrollBars::Vertical;
 			this->textBox_DownlinkSaveLocation->Size = System::Drawing::Size(265, 50);
 			this->textBox_DownlinkSaveLocation->TabIndex = 29;
-			this->textBox_DownlinkSaveLocation->Text = L"%USERPROFILE%\\Desktop\\downlinks";
+			this->textBox_DownlinkSaveLocation->Text = L"%USERPROFILE%\\Desktop\\NaSPUoN transfers\\GS\\downlinks";
 			// 
 			// labelDownlinkSaveLocation
 			// 
@@ -581,7 +581,7 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			// 
 			this->button_saveNewConfigFile->Enabled = false;
 			this->button_saveNewConfigFile->Location = System::Drawing::Point(80, 306);
-			this->button_saveNewConfigFile->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->button_saveNewConfigFile->Margin = System::Windows::Forms::Padding(4);
 			this->button_saveNewConfigFile->Name = L"button_saveNewConfigFile";
 			this->button_saveNewConfigFile->Size = System::Drawing::Size(317, 28);
 			this->button_saveNewConfigFile->TabIndex = 30;
@@ -598,7 +598,7 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			// button_about
 			// 
 			this->button_about->Location = System::Drawing::Point(5, 7);
-			this->button_about->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->button_about->Margin = System::Windows::Forms::Padding(4);
 			this->button_about->Name = L"button_about";
 			this->button_about->Size = System::Drawing::Size(68, 28);
 			this->button_about->TabIndex = 31;
@@ -610,7 +610,7 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			// 
 			this->textBox_AX25GSSSID->CharacterCasing = System::Windows::Forms::CharacterCasing::Upper;
 			this->textBox_AX25GSSSID->Location = System::Drawing::Point(1060, 11);
-			this->textBox_AX25GSSSID->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->textBox_AX25GSSSID->Margin = System::Windows::Forms::Padding(4);
 			this->textBox_AX25GSSSID->MaxLength = 4;
 			this->textBox_AX25GSSSID->Name = L"textBox_AX25GSSSID";
 			this->textBox_AX25GSSSID->Size = System::Drawing::Size(76, 22);
@@ -623,7 +623,7 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			// 
 			this->textBox_AX25GSCallsign->CharacterCasing = System::Windows::Forms::CharacterCasing::Upper;
 			this->textBox_AX25GSCallsign->Location = System::Drawing::Point(1060, 37);
-			this->textBox_AX25GSCallsign->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->textBox_AX25GSCallsign->Margin = System::Windows::Forms::Padding(4);
 			this->textBox_AX25GSCallsign->MaxLength = 16;
 			this->textBox_AX25GSCallsign->Name = L"textBox_AX25GSCallsign";
 			this->textBox_AX25GSCallsign->Size = System::Drawing::Size(76, 22);
@@ -685,7 +685,7 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			this->Controls->Add(this->button_imagesTaken);
 			this->Controls->Add(this->richTextBox_output);
 			this->Icon = (cli::safe_cast<System::Drawing::Icon^>(resources->GetObject(L"$this.Icon")));
-			this->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->Margin = System::Windows::Forms::Padding(4);
 			this->Name = L"MyForm";
 			this->Text = L"NaSPUoN Ground Station Software";
 			this->groupBox_Initialization->ResumeLayout(false);

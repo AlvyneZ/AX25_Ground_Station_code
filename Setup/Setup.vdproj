@@ -13,6 +13,12 @@
 "SccProvider" = "8:"
     "Hierarchy"
     {
+        "Entry"
+        {
+        "MsmKey" = "8:_B9A2EAADA70A49698A8DEDDEA03ABCB6"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
     }
     "Configurations"
     {
@@ -128,6 +134,26 @@
         }
         "File"
         {
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B9A2EAADA70A49698A8DEDDEA03ABCB6"
+            {
+            "SourcePath" = "8:..\\..\\SatUI AX25\\SatUI AX25\\Icon.ico"
+            "TargetName" = "8:Icon.ico"
+            "Tag" = "8:"
+            "Folder" = "8:_B6230548888B4EC4B7F4F9B4D0DFDAE7"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
         }
         "FileType"
         {
@@ -143,6 +169,94 @@
             "Property" = "8:DesktopFolder"
                 "Folders"
                 {
+                    "{9EF0B969-E518-4E46-987F-47570745A589}:_CF68CDE75BC7449A8B3DD1EBD62D1C35"
+                    {
+                    "Name" = "8:NaSPUoN transfers"
+                    "AlwaysCreate" = "11:FALSE"
+                    "Condition" = "8:"
+                    "Transitive" = "11:FALSE"
+                    "Property" = "8:_E6B9362CB8CA494C86918DF49B0E247A"
+                        "Folders"
+                        {
+                            "{9EF0B969-E518-4E46-987F-47570745A589}:_1BDC3C34BB304047B60EBD31E506FD26"
+                            {
+                            "Name" = "8:GS"
+                            "AlwaysCreate" = "11:FALSE"
+                            "Condition" = "8:"
+                            "Transitive" = "11:FALSE"
+                            "Property" = "8:_1C6FD198EA394D1F80860FBF9E16E43E"
+                                "Folders"
+                                {
+                                    "{9EF0B969-E518-4E46-987F-47570745A589}:_0FB208210BD24D21A359F803162682B2"
+                                    {
+                                    "Name" = "8:downlinks"
+                                    "AlwaysCreate" = "11:FALSE"
+                                    "Condition" = "8:"
+                                    "Transitive" = "11:FALSE"
+                                    "Property" = "8:_4CEDF04845184E95925FF4E9FFC4B119"
+                                        "Folders"
+                                        {
+                                            "{9EF0B969-E518-4E46-987F-47570745A589}:_57A09E5847B847A2BA574AC58DADD84E"
+                                            {
+                                            "Name" = "8:lr"
+                                            "AlwaysCreate" = "11:FALSE"
+                                            "Condition" = "8:"
+                                            "Transitive" = "11:FALSE"
+                                            "Property" = "8:_68F1A86030A741D18B34892E93DF4F88"
+                                                "Folders"
+                                                {
+                                                }
+                                            }
+                                            "{9EF0B969-E518-4E46-987F-47570745A589}:_AF3ADC98307446C8ACC2228374CEEC27"
+                                            {
+                                            "Name" = "8:lf"
+                                            "AlwaysCreate" = "11:FALSE"
+                                            "Condition" = "8:"
+                                            "Transitive" = "11:FALSE"
+                                            "Property" = "8:_9F657D770AEF45BD88368C4E543FBE86"
+                                                "Folders"
+                                                {
+                                                }
+                                            }
+                                            "{9EF0B969-E518-4E46-987F-47570745A589}:_C4E9C5830EC747A19D7DCA05401686E7"
+                                            {
+                                            "Name" = "8:im"
+                                            "AlwaysCreate" = "11:FALSE"
+                                            "Condition" = "8:"
+                                            "Transitive" = "11:FALSE"
+                                            "Property" = "8:_0E9A8675A0C54B39ACA189FBBBE971F9"
+                                                "Folders"
+                                                {
+                                                }
+                                            }
+                                            "{9EF0B969-E518-4E46-987F-47570745A589}:_CC866E7C6DD7469E9C4A6AB58C1B4A23"
+                                            {
+                                            "Name" = "8:hk"
+                                            "AlwaysCreate" = "11:FALSE"
+                                            "Condition" = "8:"
+                                            "Transitive" = "11:FALSE"
+                                            "Property" = "8:_DEDE1F59915B41A18BC2C8812C758525"
+                                                "Folders"
+                                                {
+                                                }
+                                            }
+                                        }
+                                    }
+                                    "{9EF0B969-E518-4E46-987F-47570745A589}:_B6230548888B4EC4B7F4F9B4D0DFDAE7"
+                                    {
+                                    "Name" = "8:uplinks"
+                                    "AlwaysCreate" = "11:FALSE"
+                                    "Condition" = "8:"
+                                    "Transitive" = "11:FALSE"
+                                    "Property" = "8:_D444C46D00014F1193C95E0411625C73"
+                                        "Folders"
+                                        {
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
             "{1525181F-901A-416C-8A58-119130FE478E}:_BA0CA0321E264FDFB0D4594F3B3D2BFE"
@@ -185,7 +299,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:NaPUoN GSUI"
         "ProductCode" = "8:{023B782B-88E2-4F9D-B5B4-600B0337CBA9}"
-        "PackageCode" = "8:{6B4D1064-6113-4BB4-8988-14DC628BDD29}"
+        "PackageCode" = "8:{F39804BD-13AA-4A71-80C5-DA9B18AC674E}"
         "UpgradeCode" = "8:{B7C7A3D5-6A9B-47EA-9E67-8F6407246815}"
         "AspNetVersion" = "8:2.0.50727.0"
         "RestartWWWService" = "11:FALSE"
@@ -704,12 +818,12 @@
         }
         "ProjectOutput"
         {
-            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_7FE2C46AD60C40E4BD76C8BFB6834035"
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_A5B1F215FBB1492B98DF7E246D3C48F2"
             {
             "SourcePath" = "8:..\\Release\\GS_UI.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
-            "Folder" = "8:_EC80B46EB3EF44B2859EF84116B9D03C"
+            "Folder" = "8:_1BDC3C34BB304047B60EBD31E506FD26"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
