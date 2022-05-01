@@ -646,6 +646,7 @@ void GSUI::MyForm::cancelIncomingTransfer(uint16_t tID) {
 			backgroundWorker_DownlinkPartRequest[tID]->CancelAsync();
 			System::Threading::Thread::CurrentThread->Sleep(50); //Stall for backgroundWorker_DownlinkPartRequest to stop
 		}
+		backgroundWorker_DownlinkPartRequest->erase(tID);
 	}
 	if (CommsNaSPUoN::incomingTransfers.count(tID)) {
 		CommsNaSPUoN::incomingTransfers.erase(tID);
