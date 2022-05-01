@@ -55,7 +55,7 @@ void GSUI::MyForm::log(std::string message) {
 		for (cliext::map<uint16_t, int>::iterator it = DownlinkPtRqThreadID->begin(); it != DownlinkPtRqThreadID->end(); it++) {
 			if (thread == it->second) {
 				if (backgroundWorker_DownlinkPartRequest[it->first]->IsBusy)
-					this->backgroundWorker_DownlinkPartRequest[it->first]->ReportProgress(1, messageSys);
+					return this->backgroundWorker_DownlinkPartRequest[it->first]->ReportProgress(1, messageSys);
 			}
 		}
 	}
@@ -81,7 +81,7 @@ void GSUI::MyForm::logErr(std::string message) {
 		for (cliext::map<uint16_t, int>::iterator it = DownlinkPtRqThreadID->begin(); it != DownlinkPtRqThreadID->end(); it++) {
 			if (thread == it->second) {
 				if (backgroundWorker_DownlinkPartRequest[it->first]->IsBusy)
-					this->backgroundWorker_DownlinkPartRequest[it->first]->ReportProgress(2, messageSys);
+					return this->backgroundWorker_DownlinkPartRequest[it->first]->ReportProgress(2, messageSys);
 			}
 		}
 	}
