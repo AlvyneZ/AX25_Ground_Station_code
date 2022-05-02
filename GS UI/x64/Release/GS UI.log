@@ -1,9 +1,9 @@
-﻿  IncomingTransfer.cpp
+﻿  DownlinkTransfer.cpp
   MyForm.cpp
-c:\users\alvynez\source\repos\gsui ax25\gs ui\myform.h(126): warning C4677: 'transferForms': signature of non-private member contains assembly private type 'cliext::map<uint16_t,GSUI::IncomingTransfer ^>'
-  c:\users\alvynez\source\repos\gsui ax25\gs ui\myform.h(126): note: see declaration of 'cliext::map<uint16_t,GSUI::IncomingTransfer ^>'
-c:\users\alvynez\source\repos\gsui ax25\gs ui\myform.h(1001): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-c:\users\alvynez\source\repos\gsui ax25\gs ui\logger.h(20): warning C4996: 'localtime': This function or variable may be unsafe. Consider using localtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+c:\users\alvynez\source\repos\gsui ax25\gs ui\myform.h(127): warning C4677: 'transferForms': signature of non-private member contains assembly private type 'cliext::map<uint16_t,GSUI::DownlinkTransfer ^>'
+  c:\users\alvynez\source\repos\gsui ax25\gs ui\myform.h(127): note: see declaration of 'cliext::map<uint16_t,GSUI::DownlinkTransfer ^>'
+c:\users\alvynez\source\repos\gsui ax25\gs ui\myform.h(1033): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+c:\users\alvynez\source\repos\gsui ax25\gs ui\logger.h(21): warning C4996: 'localtime': This function or variable may be unsafe. Consider using localtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\time.h(506): note: see declaration of 'localtime'
 c:\users\alvynez\source\repos\gsui ax25\gs ui\ax25communication.h(63): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
 c:\users\alvynez\source\repos\gsui ax25\gs ui\ax25communication.h(64): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
@@ -19,17 +19,15 @@ c:\users\alvynez\source\repos\gsui ax25\gs ui\bitmanipulation.h(86): warning C42
 c:\users\alvynez\source\repos\gsui ax25\gs ui\bitmanipulation.h(97): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
 c:\users\alvynez\source\repos\gsui ax25\gs ui\bitmanipulation.h(112): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
 c:\users\alvynez\source\repos\gsui ax25\gs ui\bitmanipulation.h(127): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-c:\users\alvynez\source\repos\gsui ax25\gs ui\communicationshandler.h(189): warning C4267: '=': conversion from 'size_t' to 'uint32_t', possible loss of data
-c:\users\alvynez\source\repos\gsui ax25\gs ui\communicationshandler.h(192): warning C4267: '=': conversion from 'size_t' to 'uint32_t', possible loss of data
-c:\users\alvynez\source\repos\gsui ax25\gs ui\communicationshandler.h(236): warning C4101: 'lastFrameID': unreferenced local variable
-c:\users\alvynez\source\repos\gsui ax25\gs ui\communicationshandler.h(265): warning C4101: 'lastFrameID': unreferenced local variable
-c:\users\alvynez\source\repos\gsui ax25\gs ui\communicationshandler.h(578): warning C4996: 'localtime': This function or variable may be unsafe. Consider using localtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+c:\users\alvynez\source\repos\gsui ax25\gs ui\communicationshandler.h(190): warning C4267: '=': conversion from 'size_t' to 'uint32_t', possible loss of data
+c:\users\alvynez\source\repos\gsui ax25\gs ui\communicationshandler.h(193): warning C4267: '=': conversion from 'size_t' to 'uint32_t', possible loss of data
+c:\users\alvynez\source\repos\gsui ax25\gs ui\communicationshandler.h(237): warning C4101: 'lastFrameID': unreferenced local variable
+c:\users\alvynez\source\repos\gsui ax25\gs ui\communicationshandler.h(266): warning C4101: 'lastFrameID': unreferenced local variable
+c:\users\alvynez\source\repos\gsui ax25\gs ui\communicationshandler.h(579): warning C4996: 'localtime': This function or variable may be unsafe. Consider using localtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\time.h(506): note: see declaration of 'localtime'
-c:\users\alvynez\source\repos\gsui ax25\gs ui\communicationshandler.h(611): warning C4267: 'initializing': conversion from 'size_t' to 'uint32_t', possible loss of data
-c:\users\alvynez\source\repos\gsui ax25\gs ui\communicationshandler.h(663): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-c:\users\alvynez\source\repos\gsui ax25\gs ui\communicationshandler.h(669): warning C4267: '=': conversion from 'size_t' to 'uint32_t', possible loss of data
+c:\users\alvynez\source\repos\gsui ax25\gs ui\communicationshandler.h(612): warning C4267: 'initializing': conversion from 'size_t' to 'uint32_t', possible loss of data
+c:\users\alvynez\source\repos\gsui ax25\gs ui\communicationshandler.h(667): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
 c:\users\alvynez\source\repos\gsui ax25\gs ui\communicationshandler.h(673): warning C4267: '=': conversion from 'size_t' to 'uint32_t', possible loss of data
-  AboutDialog.cpp
+c:\users\alvynez\source\repos\gsui ax25\gs ui\communicationshandler.h(677): warning C4267: '=': conversion from 'size_t' to 'uint32_t', possible loss of data
   Generating Code...
-  .NETFramework,Version=v4.6.1.AssemblyAttributes.cpp
   GS UI.vcxproj -> C:\Users\AlvyneZ\source\repos\GSUI AX25\x64\Release\GS_UI.exe

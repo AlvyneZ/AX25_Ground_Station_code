@@ -1,4 +1,4 @@
-  GSUI.IncomingTransfer.resources - Embedded, ContainedInManifestFile, 
+  GSUI.DownlinkTransfer.resources - Embedded, ContainedInManifestFile, 
   GSUI.MyForm.resources - Embedded, ContainedInManifestFile, 
   GSUI.AboutDialog.resources - Embedded, ContainedInManifestFile, 
 ImageRuntimeVersion: v4.0.30319
@@ -20,7 +20,7 @@ Assembly System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c5619
 	hash=None, flags=None
 Assembly Microsoft.VisualC.STLCLR, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a: 
 	hash=None, flags=None
-Class GSUI.IncomingTransfer: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
+Class GSUI.DownlinkTransfer: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
   :System.Windows.Forms.Form
     Void .ctor(): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
   Fields:
@@ -43,7 +43,7 @@ Class GSUI.MyForm: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
     System.String satelliteCallsign : Public
     Byte groundSSID : Public
     System.String groundCallsign : Public
-    cliext.map<unsigned short\,GSUI::IncomingTransfer ^> transferForms : Public
+    cliext.map<unsigned short\,GSUI::DownlinkTransfer ^> transferForms : Public
   Methods:
     log(basic_string<char\,std::char_traits<char>\,std::allocator<char> >*): PrivateScope, Public, HideBySig
     logErr(basic_string<char\,std::char_traits<char>\,std::allocator<char> >*): PrivateScope, Public, HideBySig
