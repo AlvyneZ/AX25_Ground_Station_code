@@ -350,6 +350,10 @@ void GSUI::MyForm::processIncomingPayload(std::vector<uint8_t> AX25SatCallsignSS
 				if (payload.size() < 4) //To avoid accessing outside vector size
 					return;
 				uint16_t tID = getSixteenBitIntFromEightBitVector(payload, 2);
+				if (CommsNaSPUoN::incomingTransfers.count(tID)) {
+					logErr("CommHndl -> Received duplicate initializer for already ongoing incoming transfer " + std::to_string(tID));
+					return;
+				}
 				FileTransfer newFileTransfer = initializeFileTransfer(true, payload);
 
 				std::vector<uint8_t> pck;
@@ -644,7 +648,7 @@ void GSUI::MyForm::cancelIncomingTransfer(uint16_t tID) {
 	if (this->backgroundWorker_DownlinkPartRequest->count(tID)) {
 		if (this->backgroundWorker_DownlinkPartRequest[tID]->IsBusy) {
 			backgroundWorker_DownlinkPartRequest[tID]->CancelAsync();
-			System::Threading::Thread::CurrentThread->Sleep(50); //Stall for backgroundWorker_DownlinkPartRequest to stop
+			System::Threading::Thread::CurrentThread->Sleep(100); //Stall for backgroundWorker_DownlinkPartRequest to stop
 		}
 		backgroundWorker_DownlinkPartRequest->erase(tID);
 	}
@@ -689,10 +693,11 @@ void GSUI::MyForm::newOutgoingTransfer(std::vector<uint8_t> AX25SatCallsignSSID,
 void GSUI::MyForm::cancelOutgoingTransfer(uint16_t tID) {
 	if (this->backgroundWorker_Uplink->IsBusy) {
 		backgroundWorker_Uplink->CancelAsync();
-		System::Threading::Thread::CurrentThread->Sleep(50); //Stall for backgroundWorker_Uplink to stop
+		System::Threading::Thread::CurrentThread->Sleep(100); //Stall for backgroundWorker_Uplink to stop
 	}
 	if (CommsNaSPUoN::outgoingTransfers.count(tID)) {
 		CommsNaSPUoN::outgoingTransfers.erase(tID);
+		uplinkComplete(false);
 	}
 	else {
 		log("The current outgoing File Transfer appears to have already completed.");
@@ -702,15 +707,15 @@ void GSUI::MyForm::cancelOutgoingTransfer(uint16_t tID) {
 void GSUI::MyForm::cancelAllTransfers() {
 	if (this->backgroundWorker_Uplink->IsBusy) {
 		backgroundWorker_Uplink->CancelAsync();
-		System::Threading::Thread::CurrentThread->Sleep(50); //Stall for backgroundWorker_Uplink to stop
+		System::Threading::Thread::CurrentThread->Sleep(100); //Stall for backgroundWorker_Uplink to stop
 	}
 
-	for (cliext::map<uint16_t, System::ComponentModel::BackgroundWorker^>::iterator it = backgroundWorker_DownlinkPartRequest->begin(); it != backgroundWorker_DownlinkPartRequest->end(); it++) {
+	for (cliext::map<uint16_t, System::ComponentModel::BackgroundWorker^>::iterator it = backgroundWorker_DownlinkPartRequest->begin(); it != backgroundWorker_DownlinkPartRequest->end();) {
 		if (it->second->IsBusy) {
 			it->second->CancelAsync();
-			System::Threading::Thread::CurrentThread->Sleep(50); //Stall for backgroundWorker_DownlinkPartRequest to stop
+			System::Threading::Thread::CurrentThread->Sleep(100); //Stall for backgroundWorker_DownlinkPartRequest to stop
 		}
-		backgroundWorker_DownlinkPartRequest->erase(it);
+		it = backgroundWorker_DownlinkPartRequest->erase(it);
 	}
 
 	std::vector<uint8_t> payload;
@@ -720,16 +725,16 @@ void GSUI::MyForm::cancelAllTransfers() {
 
 	sendRFPacket(this->getSatelliteCallsignSSID(), payload);
 
-	for (std::map<uint16_t, FileTransfer>::iterator it = CommsNaSPUoN::incomingTransfers.begin(); it != CommsNaSPUoN::incomingTransfers.end(); it++) {
-		CommsNaSPUoN::incomingTransfers.erase(it);
+	for (std::map<uint16_t, FileTransfer>::iterator it = CommsNaSPUoN::incomingTransfers.begin(); it != CommsNaSPUoN::incomingTransfers.end();) {
+		it = CommsNaSPUoN::incomingTransfers.erase(it);
 	}
-	for (std::map<uint16_t, FileTransfer>::iterator it = CommsNaSPUoN::outgoingTransfers.begin(); it != CommsNaSPUoN::outgoingTransfers.end(); it++) {
-		CommsNaSPUoN::outgoingTransfers.erase(it);
+	for (std::map<uint16_t, FileTransfer>::iterator it = CommsNaSPUoN::outgoingTransfers.begin(); it != CommsNaSPUoN::outgoingTransfers.end();) {
+		it = CommsNaSPUoN::outgoingTransfers.erase(it);
 	}
 	log("CommHndl -> All incomplete transfers have been deleted successfully.");
 
-	for (cliext::map<uint16_t, DownlinkTransfer^>::iterator it = transferForms->begin(); it != transferForms->end(); it++) {
-		transferForms->erase(it);
+	for (cliext::map<uint16_t, DownlinkTransfer^>::iterator it = transferForms->begin(); it != transferForms->end();) {
+		it = transferForms->erase(it);
 	}
 	uplinkComplete(false);
 }

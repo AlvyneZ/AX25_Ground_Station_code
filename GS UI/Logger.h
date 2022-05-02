@@ -46,6 +46,10 @@ void GSUI::MyForm::log(std::string message) {
 		if (backgroundWorker_Receiver->IsBusy)
 			this->backgroundWorker_Receiver->ReportProgress(1, messageSys);
 	}
+	else if (System::Threading::Thread::CurrentThread->ManagedThreadId == this->resenderThreadID) {
+		if (backgroundWorker_Resender->IsBusy)
+			this->backgroundWorker_Resender->ReportProgress(1, messageSys);
+	}
 	else if (System::Threading::Thread::CurrentThread->ManagedThreadId == this->UplinkThreadID) {
 		if (backgroundWorker_Uplink->IsBusy)
 			this->backgroundWorker_Uplink->ReportProgress(1, messageSys);
@@ -54,7 +58,7 @@ void GSUI::MyForm::log(std::string message) {
 		int thread = System::Threading::Thread::CurrentThread->ManagedThreadId;
 		for (cliext::map<uint16_t, int>::iterator it = DownlinkPtRqThreadID->begin(); it != DownlinkPtRqThreadID->end(); it++) {
 			if (thread == it->second) {
-				if (backgroundWorker_DownlinkPartRequest[it->first]->IsBusy)
+				if ((backgroundWorker_DownlinkPartRequest->count(it->first)) && (backgroundWorker_DownlinkPartRequest[it->first]->IsBusy))
 					return this->backgroundWorker_DownlinkPartRequest[it->first]->ReportProgress(1, messageSys);
 			}
 		}
@@ -72,6 +76,10 @@ void GSUI::MyForm::logErr(std::string message) {
 		if (backgroundWorker_Receiver->IsBusy)
 			this->backgroundWorker_Receiver->ReportProgress(2, messageSys);
 	}
+	else if (System::Threading::Thread::CurrentThread->ManagedThreadId == this->resenderThreadID) {
+		if (backgroundWorker_Resender->IsBusy)
+			this->backgroundWorker_Resender->ReportProgress(2, messageSys);
+	}
 	else if (System::Threading::Thread::CurrentThread->ManagedThreadId == this->UplinkThreadID) {
 		if (backgroundWorker_Uplink->IsBusy)
 			this->backgroundWorker_Uplink->ReportProgress(2, messageSys);
@@ -80,7 +88,7 @@ void GSUI::MyForm::logErr(std::string message) {
 		int thread = System::Threading::Thread::CurrentThread->ManagedThreadId;
 		for (cliext::map<uint16_t, int>::iterator it = DownlinkPtRqThreadID->begin(); it != DownlinkPtRqThreadID->end(); it++) {
 			if (thread == it->second) {
-				if (backgroundWorker_DownlinkPartRequest[it->first]->IsBusy)
+				if ((backgroundWorker_DownlinkPartRequest->count(it->first)) && (backgroundWorker_DownlinkPartRequest[it->first]->IsBusy))
 					return this->backgroundWorker_DownlinkPartRequest[it->first]->ReportProgress(2, messageSys);
 			}
 		}

@@ -49,6 +49,7 @@ namespace GSUI {
 			this->kissOutMutex = gcnew System::Object();
 			this->HPAX25Mutex = gcnew System::Object();
 			this->UIThreadID = System::Threading::Thread::CurrentThread->ManagedThreadId;
+			this->DownlinkPtRqThreadID = gcnew cliext::map<uint16_t, int>();
 			this->transferForms = gcnew cliext::map<uint16_t, DownlinkTransfer^>();
 			this->backgroundWorker_DownlinkPartRequest = gcnew cliext::map<uint16_t, System::ComponentModel::BackgroundWorker^>();
 			//
@@ -137,7 +138,7 @@ namespace GSUI {
 		System::Object^ HPAX25Mutex;
 		uint16_t currentDownlinkTransferID, currentUplinkTransferID;
 		System::String^ downlinkSavelocation;
-		int UIThreadID, receiverThreadID, UplinkThreadID;
+		int UIThreadID, receiverThreadID, resenderThreadID, UplinkThreadID;
 		cliext::map<uint16_t, int>^ DownlinkPtRqThreadID;
 		AboutDialog^ about;
 	private: System::Windows::Forms::Button^  button_about;
@@ -416,7 +417,7 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			this->textBox_uplinkFileName->ScrollBars = System::Windows::Forms::ScrollBars::Vertical;
 			this->textBox_uplinkFileName->Size = System::Drawing::Size(265, 50);
 			this->textBox_uplinkFileName->TabIndex = 18;
-			this->textBox_uplinkFileName->Text = L"%USERPROFILE%\\Desktop\\NaSPUoN transfers\\GS\\uplinks\\Icon.ico";
+			this->textBox_uplinkFileName->Text = L"C:\\Users\\AlvyneZ\\Desktop\\NaSPUoN transfers\\GS\\uplinks\\Icon.ico";
 			// 
 			// groupBox_Initialization
 			// 
@@ -565,7 +566,7 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			this->textBox_DownlinkSaveLocation->ScrollBars = System::Windows::Forms::ScrollBars::Vertical;
 			this->textBox_DownlinkSaveLocation->Size = System::Drawing::Size(265, 50);
 			this->textBox_DownlinkSaveLocation->TabIndex = 29;
-			this->textBox_DownlinkSaveLocation->Text = L"%USERPROFILE%\\Desktop\\NaSPUoN transfers\\GS\\downlinks";
+			this->textBox_DownlinkSaveLocation->Text = L"C:\\Users\\AlvyneZ\\Desktop\\NaSPUoN transfers\\GS\\downlinks";
 			// 
 			// labelDownlinkSaveLocation
 			// 
@@ -591,8 +592,10 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			// 
 			// backgroundWorker_Resender
 			// 
+			this->backgroundWorker_Resender->WorkerReportsProgress = true;
 			this->backgroundWorker_Resender->WorkerSupportsCancellation = true;
 			this->backgroundWorker_Resender->DoWork += gcnew System::ComponentModel::DoWorkEventHandler(this, &MyForm::backgroundWorker_Resender_DoWork);
+			this->backgroundWorker_Resender->ProgressChanged += gcnew System::ComponentModel::ProgressChangedEventHandler(this, &MyForm::backgroundWorker_Resender_ProgressChanged);
 			this->backgroundWorker_Resender->RunWorkerCompleted += gcnew System::ComponentModel::RunWorkerCompletedEventHandler(this, &MyForm::backgroundWorker_Resender_RunWorkerCompleted);
 			// 
 			// button_about
@@ -972,14 +975,37 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 
 			//Thread for resending high priority packets if they are not received
 			private: System::Void backgroundWorker_Resender_DoWork(System::Object^  sender, System::ComponentModel::DoWorkEventArgs^  e) {
+
+				//Saving resender thread ID to UI thread to enable for output to form's controls that are owned by the UIThread
+				int rsndThrdID = System::Threading::Thread::CurrentThread->ManagedThreadId;
+				backgroundWorker_Resender->ReportProgress(10, rsndThrdID);
+				//Stalling for the receiveThreadID to be updated
+				System::Threading::Thread::CurrentThread->Sleep(100);
+
 				while (1) {
-					System::Threading::Thread::CurrentThread->Sleep(200);
+					System::Threading::Thread::CurrentThread->Sleep(80);
 					if (this->backgroundWorker_Receiver->CancellationPending) {
 						e->Cancel = true;
 						return;
 					}
 
 					sendAX25Frames();
+				}
+			}
+
+			//Function that is executed on UI thread when backgroundWorker_Resender->ReportProgress() is called
+			private: System::Void backgroundWorker_Resender_ProgressChanged(System::Object^  sender, System::ComponentModel::ProgressChangedEventArgs^  e) {
+				if (e->ProgressPercentage == 10) {
+					//For the system to know the threadID of the Resender_BackgroundWorker
+					this->resenderThreadID = safe_cast<int>(e->UserState);
+				}
+				else if (e->ProgressPercentage == 1) {
+					//For the resenderBackgroundWorker to be able to log to the richTextBox
+					log(msclr::interop::marshal_as<std::string>(e->UserState->ToString()));
+				}
+				else if (e->ProgressPercentage == 2) {
+					//For the resenderBackgroundWorker to be able to logErr to the richTextBox
+					logErr(msclr::interop::marshal_as<std::string>(e->UserState->ToString()));
 				}
 			}
 
@@ -1026,7 +1052,6 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 				//Check if serial port is open
 				if (!(this->serialPort1->IsOpen)) {
 					logErr("Could not send message. The port is not open.");
-					setEnableInputs(false);
 					return;
 				}
 				//TODO: Find a more efficient way of converting std::vector to System::array
