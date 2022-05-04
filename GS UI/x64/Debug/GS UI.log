@@ -1,33 +1,37 @@
-﻿  MyForm.cpp
-c:\users\alvynez\source\repos\gsui ax25\gs ui\myform.h(128): warning C4677: 'transferForms': signature of non-private member contains assembly private type 'cliext::map<uint16_t,GSUI::DownlinkTransfer ^>'
-  c:\users\alvynez\source\repos\gsui ax25\gs ui\myform.h(128): note: see declaration of 'cliext::map<uint16_t,GSUI::DownlinkTransfer ^>'
-c:\users\alvynez\source\repos\gsui ax25\gs ui\myform.h(1058): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-c:\users\alvynez\source\repos\gsui ax25\gs ui\logger.h(21): warning C4996: 'localtime': This function or variable may be unsafe. Consider using localtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+﻿  DownlinkTransfer.cpp
+  MyForm.cpp
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\myform.h(128): warning C4677: 'transferForms': signature of non-private member contains assembly private type 'cliext::map<uint16_t,GSUI::DownlinkTransfer ^>'
+  c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\myform.h(128): note: see declaration of 'cliext::map<uint16_t,GSUI::DownlinkTransfer ^>'
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\myform.h(1058): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\logger.h(21): warning C4996: 'localtime': This function or variable may be unsafe. Consider using localtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\time.h(506): note: see declaration of 'localtime'
-c:\users\alvynez\source\repos\gsui ax25\gs ui\ax25communication.h(64): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-c:\users\alvynez\source\repos\gsui ax25\gs ui\ax25communication.h(65): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-c:\users\alvynez\source\repos\gsui ax25\gs ui\ax25communication.h(83): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-c:\users\alvynez\source\repos\gsui ax25\gs ui\ax25communication.h(173): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-c:\users\alvynez\source\repos\gsui ax25\gs ui\ax25communication.h(228): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-c:\users\alvynez\source\repos\gsui ax25\gs ui\ax25communication.h(231): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-c:\users\alvynez\source\repos\gsui ax25\gs ui\ax25communication.h(278): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-c:\users\alvynez\source\repos\gsui ax25\gs ui\ax25communication.h(315): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-c:\users\alvynez\source\repos\gsui ax25\gs ui\ax25communication.h(397): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-c:\users\alvynez\source\repos\gsui ax25\gs ui\bitmanipulation.h(64): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-c:\users\alvynez\source\repos\gsui ax25\gs ui\bitmanipulation.h(75): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-c:\users\alvynez\source\repos\gsui ax25\gs ui\bitmanipulation.h(86): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-c:\users\alvynez\source\repos\gsui ax25\gs ui\bitmanipulation.h(97): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-c:\users\alvynez\source\repos\gsui ax25\gs ui\bitmanipulation.h(112): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-c:\users\alvynez\source\repos\gsui ax25\gs ui\bitmanipulation.h(127): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-c:\users\alvynez\source\repos\gsui ax25\gs ui\communicationshandler.h(190): warning C4267: '=': conversion from 'size_t' to 'uint32_t', possible loss of data
-c:\users\alvynez\source\repos\gsui ax25\gs ui\communicationshandler.h(193): warning C4267: '=': conversion from 'size_t' to 'uint32_t', possible loss of data
-c:\users\alvynez\source\repos\gsui ax25\gs ui\communicationshandler.h(237): warning C4101: 'lastFrameID': unreferenced local variable
-c:\users\alvynez\source\repos\gsui ax25\gs ui\communicationshandler.h(266): warning C4101: 'lastFrameID': unreferenced local variable
-c:\users\alvynez\source\repos\gsui ax25\gs ui\communicationshandler.h(583): warning C4996: 'localtime': This function or variable may be unsafe. Consider using localtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\ax25communication.h(64): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\ax25communication.h(65): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\ax25communication.h(83): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\ax25communication.h(173): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\ax25communication.h(228): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\ax25communication.h(231): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\ax25communication.h(278): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\ax25communication.h(315): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\ax25communication.h(397): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\bitmanipulation.h(64): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\bitmanipulation.h(75): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\bitmanipulation.h(86): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\bitmanipulation.h(97): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\bitmanipulation.h(112): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\bitmanipulation.h(127): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\communicationshandler.h(190): warning C4267: '=': conversion from 'size_t' to 'uint32_t', possible loss of data
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\communicationshandler.h(193): warning C4267: '=': conversion from 'size_t' to 'uint32_t', possible loss of data
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\communicationshandler.h(237): warning C4101: 'lastFrameID': unreferenced local variable
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\communicationshandler.h(266): warning C4101: 'lastFrameID': unreferenced local variable
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\communicationshandler.h(583): warning C4996: 'localtime': This function or variable may be unsafe. Consider using localtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\time.h(506): note: see declaration of 'localtime'
-c:\users\alvynez\source\repos\gsui ax25\gs ui\communicationshandler.h(616): warning C4267: 'initializing': conversion from 'size_t' to 'uint32_t', possible loss of data
-c:\users\alvynez\source\repos\gsui ax25\gs ui\communicationshandler.h(671): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-c:\users\alvynez\source\repos\gsui ax25\gs ui\communicationshandler.h(677): warning C4267: '=': conversion from 'size_t' to 'uint32_t', possible loss of data
-c:\users\alvynez\source\repos\gsui ax25\gs ui\communicationshandler.h(681): warning C4267: '=': conversion from 'size_t' to 'uint32_t', possible loss of data
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\communicationshandler.h(616): warning C4267: 'initializing': conversion from 'size_t' to 'uint32_t', possible loss of data
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\communicationshandler.h(671): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\communicationshandler.h(677): warning C4267: '=': conversion from 'size_t' to 'uint32_t', possible loss of data
+c:\users\alvynez\desktop\school\5th year\project\code\gsui ax25\gs ui\communicationshandler.h(681): warning C4267: '=': conversion from 'size_t' to 'uint32_t', possible loss of data
+  AboutDialog.cpp
+  Generating Code...
+  .NETFramework,Version=v4.6.1.AssemblyAttributes.cpp
   DownlinkTransfer.obj : MSIL module encountered; incremental linking is disabled for MSIL; performing full link
-  GS UI.vcxproj -> C:\Users\AlvyneZ\source\repos\GSUI AX25\x64\Debug\GS_UI.exe
+  GS UI.vcxproj -> C:\Users\AlvyneZ\Desktop\school\5th Year\Project\Code\GSUI AX25\x64\Debug\GS_UI.exe

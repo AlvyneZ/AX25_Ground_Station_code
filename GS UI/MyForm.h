@@ -1397,7 +1397,7 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			private:  void downlinkStarting(uint16_t tID) {
 				if (System::Threading::Thread::CurrentThread->ManagedThreadId == this->UIThreadID) {
 					//This part is necessary for automatic downlinks (started by the satellite)
-					System::String ^ fileToDownlink;
+					System::String ^ fileToDownlink = "?";
 					if (CommsNaSPUoN::incomingTransfers.count(tID)) {
 						fileToDownlink = gcnew System::String(CommsNaSPUoN::incomingTransfers[tID].fileName.c_str());
 					}
