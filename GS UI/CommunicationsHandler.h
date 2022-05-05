@@ -250,10 +250,9 @@ void GSUI::MyForm::uplinkTransfer(std::vector<uint8_t> AX25SatCallsignSSID, uint
 		uplinkProgressBarUpdate((i * 100) / expectedPackets);
 	}
 
-	while (KISS::kissOutBuffer.size() > 0) {
+	while ((!KISS::emptyTNC) || (KISS::kissOutBuffer.size() > 0)) {
 		if (this->backgroundWorker_Uplink->CancellationPending) {
 			e->Cancel = true;
-			e->Result = tID;
 			return;
 		}
 	}
@@ -287,14 +286,24 @@ void GSUI::MyForm::downlinkPartRequestTransfer(std::vector<uint8_t> AX25SatCalls
 			//msclr::lock lck(this->uplinkSendNextMutex);
 			sendRFPacket(AX25SatCallsignSSID, pck);
 
-			while (KISS::awaitTNC || (KISS::kissOutBuffer.size() > KISS_OUT_BUFFER_LIMIT)) {
+			while ((!KISS::emptyTNC) || (KISS::kissOutBuffer.size() > 0)) {
 				if (this->backgroundWorker_DownlinkPartRequest[tID]->CancellationPending) {
 					e->Cancel = true;
+					e->Result = tID;
 					return;
 				}
 			}
 		}
 	}
+
+	while ((!KISS::emptyTNC) || (KISS::kissOutBuffer.size() > 0)) {
+		if (this->backgroundWorker_DownlinkPartRequest[tID]->CancellationPending) {
+			e->Cancel = true;
+			e->Result = tID;
+			return;
+		}
+	}
+
 	pck.clear();
 	pck.push_back('T');
 	pck.push_back('C');
