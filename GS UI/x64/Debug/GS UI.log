@@ -22,12 +22,12 @@ c:\users\alvynez\source\repos\gsui ax25\gs ui\bitmanipulation.h(127): warning C4
 c:\users\alvynez\source\repos\gsui ax25\gs ui\communicationshandler.h(190): warning C4267: '=': conversion from 'size_t' to 'uint32_t', possible loss of data
 c:\users\alvynez\source\repos\gsui ax25\gs ui\communicationshandler.h(193): warning C4267: '=': conversion from 'size_t' to 'uint32_t', possible loss of data
 c:\users\alvynez\source\repos\gsui ax25\gs ui\communicationshandler.h(237): warning C4101: 'lastFrameID': unreferenced local variable
-c:\users\alvynez\source\repos\gsui ax25\gs ui\communicationshandler.h(266): warning C4101: 'lastFrameID': unreferenced local variable
-c:\users\alvynez\source\repos\gsui ax25\gs ui\communicationshandler.h(583): warning C4996: 'localtime': This function or variable may be unsafe. Consider using localtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+c:\users\alvynez\source\repos\gsui ax25\gs ui\communicationshandler.h(274): warning C4101: 'lastFrameID': unreferenced local variable
+c:\users\alvynez\source\repos\gsui ax25\gs ui\communicationshandler.h(591): warning C4996: 'localtime': This function or variable may be unsafe. Consider using localtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\time.h(506): note: see declaration of 'localtime'
-c:\users\alvynez\source\repos\gsui ax25\gs ui\communicationshandler.h(616): warning C4267: 'initializing': conversion from 'size_t' to 'uint32_t', possible loss of data
-c:\users\alvynez\source\repos\gsui ax25\gs ui\communicationshandler.h(671): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-c:\users\alvynez\source\repos\gsui ax25\gs ui\communicationshandler.h(677): warning C4267: '=': conversion from 'size_t' to 'uint32_t', possible loss of data
-c:\users\alvynez\source\repos\gsui ax25\gs ui\communicationshandler.h(681): warning C4267: '=': conversion from 'size_t' to 'uint32_t', possible loss of data
+c:\users\alvynez\source\repos\gsui ax25\gs ui\communicationshandler.h(624): warning C4267: 'initializing': conversion from 'size_t' to 'uint32_t', possible loss of data
+c:\users\alvynez\source\repos\gsui ax25\gs ui\communicationshandler.h(679): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+c:\users\alvynez\source\repos\gsui ax25\gs ui\communicationshandler.h(685): warning C4267: '=': conversion from 'size_t' to 'uint32_t', possible loss of data
+c:\users\alvynez\source\repos\gsui ax25\gs ui\communicationshandler.h(689): warning C4267: '=': conversion from 'size_t' to 'uint32_t', possible loss of data
   DownlinkTransfer.obj : MSIL module encountered; incremental linking is disabled for MSIL; performing full link
   GS UI.vcxproj -> C:\Users\AlvyneZ\source\repos\GSUI AX25\x64\Debug\GS_UI.exe

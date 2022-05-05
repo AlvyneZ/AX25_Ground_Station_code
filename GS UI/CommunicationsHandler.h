@@ -250,6 +250,14 @@ void GSUI::MyForm::uplinkTransfer(std::vector<uint8_t> AX25SatCallsignSSID, uint
 		uplinkProgressBarUpdate((i * 100) / expectedPackets);
 	}
 
+	while (KISS::kissOutBuffer.size() > 0) {
+		if (this->backgroundWorker_Uplink->CancellationPending) {
+			e->Cancel = true;
+			e->Result = tID;
+			return;
+		}
+	}
+
 	pck.clear();
 	pck.push_back('T');
 	pck.push_back('C');
