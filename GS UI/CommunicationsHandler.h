@@ -269,8 +269,16 @@ void GSUI::MyForm::uplinkTransfer(std::vector<uint8_t> AX25SatCallsignSSID, uint
 void GSUI::MyForm::downlinkPartRequestTransfer(std::vector<uint8_t> AX25SatCallsignSSID, uint16_t tID, System::ComponentModel::DoWorkEventArgs^  e) {
 
 	uint32_t expectedPackets = CommsNaSPUoN::incomingTransfers[tID].expectedPackets;
+	uint32_t packetsReceived = CommsNaSPUoN::incomingTransfers[tID].packetsReceived;
+
 	std::vector<uint8_t> pck;
-	uint8_t lastFrameID;
+	pck.push_back('T');
+	pck.push_back('R');
+	pck.push_back(0x03);
+	insertSixteenBitIntInEightBitVector(pck, pck.end(), tID);
+	insertThirtyTwoBitIntInEightBitVector(pck, pck.end(), packetsReceived);
+	sendRFPacket(AX25SatCallsignSSID, pck);
+
 	for (uint32_t i = 0; i < expectedPackets; i++) {
 		if (this->backgroundWorker_DownlinkPartRequest[tID]->CancellationPending) {
 			e->Cancel = true;

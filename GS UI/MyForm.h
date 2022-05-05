@@ -384,6 +384,7 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			this->label_downlinkFileName->Size = System::Drawing::Size(197, 17);
 			this->label_downlinkFileName->TabIndex = 14;
 			this->label_downlinkFileName->Text = L"File To Request For Downlink:";
+			this->label_downlinkFileName->DoubleClick += gcnew System::EventHandler(this, &MyForm::label_downlinkFileName_DoubleClick);
 			// 
 			// label_uplinkFileName
 			// 
@@ -1488,6 +1489,11 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 					about = gcnew AboutDialog;
 					about->Show();
 				}
+			}
+
+			//For cancelling all downlinks
+			private: System::Void label_downlinkFileName_DoubleClick(System::Object^  sender, System::EventArgs^  e) {
+				cancelAllTransfers();
 			}
 };
 
