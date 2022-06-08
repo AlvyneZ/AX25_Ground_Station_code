@@ -38,7 +38,8 @@ Class GSUI.MyForm: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
     Void .ctor(): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
   Fields:
     System.Windows.Forms.RichTextBox richTextBox_output : Public
-    Byte TNCPort : Public
+    Byte TNCPortDownlink : Public
+    Byte TNCPortUplink : Public
     Byte satelliteSSID : Public
     System.String satelliteCallsign : Public
     Byte groundSSID : Public

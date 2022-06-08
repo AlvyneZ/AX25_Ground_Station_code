@@ -35,7 +35,8 @@ namespace GSUI {
 			findPorts();
 			//
 			//TODO: Add the constructor code here
-			this->TNCPort = 0x0;
+			this->TNCPortDownlink = 0x0;
+			this->TNCPortUplink = 0x0;
 			this->satelliteSSID = 0x2;
 			this->satelliteCallsign = L"N0CAL";
 			this->groundSSID = 0x1;
@@ -120,7 +121,7 @@ namespace GSUI {
 	private: System::ComponentModel::IContainer^  components;
 
 	public:
-			uint8_t TNCPort;
+			uint8_t TNCPortDownlink, TNCPortUplink;
 			uint8_t satelliteSSID;
 			System::String^ satelliteCallsign;
 			uint8_t groundSSID;
@@ -142,7 +143,8 @@ namespace GSUI {
 		cliext::map<uint16_t, int>^ DownlinkPtRqThreadID;
 		AboutDialog^ about;
 	private: System::Windows::Forms::Button^  button_about;
-private: System::Windows::Forms::ComboBox^  comboBox_TNCPort;
+private: System::Windows::Forms::ComboBox^  comboBox_TNCPortDownlink;
+
 private: System::Windows::Forms::Label^  label_TNCPort;
 private: System::Windows::Forms::TextBox^  textBox_AX25GSSSID;
 private: System::Windows::Forms::TextBox^  textBox_AX25GSCallsign;
@@ -151,6 +153,9 @@ private: System::Windows::Forms::TextBox^  textBox_AX25GSCallsign;
 
 private: System::Windows::Forms::Label^  label_AX25Sat;
 private: System::Windows::Forms::Label^  label_AX25GS;
+private: System::Windows::Forms::Label^  label_TNCPortUplink;
+private: System::Windows::Forms::Label^  label_TNCPortDownlink;
+private: System::Windows::Forms::ComboBox^  comboBox_TNCPortUplink;
 
 
 
@@ -188,7 +193,7 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			this->button_uplinkRequest = (gcnew System::Windows::Forms::Button());
 			this->textBox_uplinkFileName = (gcnew System::Windows::Forms::TextBox());
 			this->groupBox_Initialization = (gcnew System::Windows::Forms::GroupBox());
-			this->comboBox_TNCPort = (gcnew System::Windows::Forms::ComboBox());
+			this->comboBox_TNCPortDownlink = (gcnew System::Windows::Forms::ComboBox());
 			this->label_TNCPort = (gcnew System::Windows::Forms::Label());
 			this->progressBar_PortOpenSatus = (gcnew System::Windows::Forms::ProgressBar());
 			this->backgroundWorker_Receiver = (gcnew System::ComponentModel::BackgroundWorker());
@@ -208,6 +213,9 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			this->textBox_AX25GSCallsign = (gcnew System::Windows::Forms::TextBox());
 			this->label_AX25Sat = (gcnew System::Windows::Forms::Label());
 			this->label_AX25GS = (gcnew System::Windows::Forms::Label());
+			this->comboBox_TNCPortUplink = (gcnew System::Windows::Forms::ComboBox());
+			this->label_TNCPortDownlink = (gcnew System::Windows::Forms::Label());
+			this->label_TNCPortUplink = (gcnew System::Windows::Forms::Label());
 			this->groupBox_Initialization->SuspendLayout();
 			this->SuspendLayout();
 			// 
@@ -215,19 +223,17 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			// 
 			this->comboBox_COMPort->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
 			this->comboBox_COMPort->FormattingEnabled = true;
-			this->comboBox_COMPort->Location = System::Drawing::Point(101, 27);
-			this->comboBox_COMPort->Margin = System::Windows::Forms::Padding(4);
+			this->comboBox_COMPort->Location = System::Drawing::Point(76, 22);
 			this->comboBox_COMPort->Name = L"comboBox_COMPort";
-			this->comboBox_COMPort->Size = System::Drawing::Size(160, 24);
+			this->comboBox_COMPort->Size = System::Drawing::Size(121, 21);
 			this->comboBox_COMPort->TabIndex = 0;
 			// 
 			// label_COMPort
 			// 
 			this->label_COMPort->AutoSize = true;
-			this->label_COMPort->Location = System::Drawing::Point(19, 31);
-			this->label_COMPort->Margin = System::Windows::Forms::Padding(4, 0, 4, 0);
+			this->label_COMPort->Location = System::Drawing::Point(14, 25);
 			this->label_COMPort->Name = L"label_COMPort";
-			this->label_COMPort->Size = System::Drawing::Size(73, 17);
+			this->label_COMPort->Size = System::Drawing::Size(56, 13);
 			this->label_COMPort->TabIndex = 1;
 			this->label_COMPort->Text = L"COM Port:";
 			this->label_COMPort->DoubleClick += gcnew System::EventHandler(this, &MyForm::label_COMPort_DoubleClick);
@@ -240,19 +246,17 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 				L"1200", L"2400", L"4800", L"9600", L"19200",
 					L"38400", L"57600", L"115200", L"230400"
 			});
-			this->comboBox_Baud->Location = System::Drawing::Point(101, 60);
-			this->comboBox_Baud->Margin = System::Windows::Forms::Padding(4);
+			this->comboBox_Baud->Location = System::Drawing::Point(76, 49);
 			this->comboBox_Baud->Name = L"comboBox_Baud";
-			this->comboBox_Baud->Size = System::Drawing::Size(160, 24);
+			this->comboBox_Baud->Size = System::Drawing::Size(121, 21);
 			this->comboBox_Baud->TabIndex = 2;
 			// 
 			// label_baudRate
 			// 
 			this->label_baudRate->AutoSize = true;
-			this->label_baudRate->Location = System::Drawing::Point(12, 64);
-			this->label_baudRate->Margin = System::Windows::Forms::Padding(4, 0, 4, 0);
+			this->label_baudRate->Location = System::Drawing::Point(9, 52);
 			this->label_baudRate->Name = L"label_baudRate";
-			this->label_baudRate->Size = System::Drawing::Size(79, 17);
+			this->label_baudRate->Size = System::Drawing::Size(61, 13);
 			this->label_baudRate->TabIndex = 3;
 			this->label_baudRate->Text = L"Baud Rate:";
 			// 
@@ -260,10 +264,9 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			// 
 			this->button_initPort->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button_initPort->Location = System::Drawing::Point(272, 39);
-			this->button_initPort->Margin = System::Windows::Forms::Padding(4);
+			this->button_initPort->Location = System::Drawing::Point(204, 32);
 			this->button_initPort->Name = L"button_initPort";
-			this->button_initPort->Size = System::Drawing::Size(155, 64);
+			this->button_initPort->Size = System::Drawing::Size(116, 52);
 			this->button_initPort->TabIndex = 4;
 			this->button_initPort->Text = L"Init Port";
 			this->button_initPort->UseVisualStyleBackColor = true;
@@ -274,10 +277,9 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			this->button_closePort->Enabled = false;
 			this->button_closePort->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Regular,
 				System::Drawing::GraphicsUnit::Point, static_cast<System::Byte>(0)));
-			this->button_closePort->Location = System::Drawing::Point(484, 42);
-			this->button_closePort->Margin = System::Windows::Forms::Padding(4);
+			this->button_closePort->Location = System::Drawing::Point(363, 34);
 			this->button_closePort->Name = L"button_closePort";
-			this->button_closePort->Size = System::Drawing::Size(151, 60);
+			this->button_closePort->Size = System::Drawing::Size(113, 49);
 			this->button_closePort->TabIndex = 5;
 			this->button_closePort->Text = L"Close Port";
 			this->button_closePort->UseVisualStyleBackColor = true;
@@ -285,21 +287,19 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			// 
 			// richTextBox_output
 			// 
-			this->richTextBox_output->Location = System::Drawing::Point(484, 164);
-			this->richTextBox_output->Margin = System::Windows::Forms::Padding(4);
+			this->richTextBox_output->Location = System::Drawing::Point(363, 133);
 			this->richTextBox_output->Name = L"richTextBox_output";
 			this->richTextBox_output->ReadOnly = true;
-			this->richTextBox_output->Size = System::Drawing::Size(652, 456);
+			this->richTextBox_output->Size = System::Drawing::Size(490, 371);
 			this->richTextBox_output->TabIndex = 6;
 			this->richTextBox_output->Text = L"Output:\n";
 			// 
 			// button_imagesTaken
 			// 
 			this->button_imagesTaken->Enabled = false;
-			this->button_imagesTaken->Location = System::Drawing::Point(79, 164);
-			this->button_imagesTaken->Margin = System::Windows::Forms::Padding(4);
+			this->button_imagesTaken->Location = System::Drawing::Point(59, 133);
 			this->button_imagesTaken->Name = L"button_imagesTaken";
-			this->button_imagesTaken->Size = System::Drawing::Size(319, 28);
+			this->button_imagesTaken->Size = System::Drawing::Size(239, 23);
 			this->button_imagesTaken->TabIndex = 7;
 			this->button_imagesTaken->Text = L"Check Images Taken";
 			this->button_imagesTaken->UseVisualStyleBackColor = true;
@@ -308,10 +308,9 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			// button_LoRaPackets
 			// 
 			this->button_LoRaPackets->Enabled = false;
-			this->button_LoRaPackets->Location = System::Drawing::Point(79, 199);
-			this->button_LoRaPackets->Margin = System::Windows::Forms::Padding(4);
+			this->button_LoRaPackets->Location = System::Drawing::Point(59, 162);
 			this->button_LoRaPackets->Name = L"button_LoRaPackets";
-			this->button_LoRaPackets->Size = System::Drawing::Size(319, 28);
+			this->button_LoRaPackets->Size = System::Drawing::Size(239, 23);
 			this->button_LoRaPackets->TabIndex = 8;
 			this->button_LoRaPackets->Text = L"Check LoRa Packets Received";
 			this->button_LoRaPackets->UseVisualStyleBackColor = true;
@@ -320,10 +319,9 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			// button_saveLogFile
 			// 
 			this->button_saveLogFile->Enabled = false;
-			this->button_saveLogFile->Location = System::Drawing::Point(79, 235);
-			this->button_saveLogFile->Margin = System::Windows::Forms::Padding(4);
+			this->button_saveLogFile->Location = System::Drawing::Point(59, 191);
 			this->button_saveLogFile->Name = L"button_saveLogFile";
-			this->button_saveLogFile->Size = System::Drawing::Size(319, 28);
+			this->button_saveLogFile->Size = System::Drawing::Size(239, 23);
 			this->button_saveLogFile->TabIndex = 9;
 			this->button_saveLogFile->Text = L"Save Current log File To Old log Files";
 			this->button_saveLogFile->UseVisualStyleBackColor = true;
@@ -332,10 +330,9 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			// button_oldLogFiles
 			// 
 			this->button_oldLogFiles->Enabled = false;
-			this->button_oldLogFiles->Location = System::Drawing::Point(79, 271);
-			this->button_oldLogFiles->Margin = System::Windows::Forms::Padding(4);
+			this->button_oldLogFiles->Location = System::Drawing::Point(59, 220);
 			this->button_oldLogFiles->Name = L"button_oldLogFiles";
-			this->button_oldLogFiles->Size = System::Drawing::Size(319, 28);
+			this->button_oldLogFiles->Size = System::Drawing::Size(239, 23);
 			this->button_oldLogFiles->TabIndex = 10;
 			this->button_oldLogFiles->Text = L"Check Old log Files";
 			this->button_oldLogFiles->UseVisualStyleBackColor = true;
@@ -344,10 +341,9 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			// button_houseKeepingData
 			// 
 			this->button_houseKeepingData->Enabled = false;
-			this->button_houseKeepingData->Location = System::Drawing::Point(79, 368);
-			this->button_houseKeepingData->Margin = System::Windows::Forms::Padding(4);
+			this->button_houseKeepingData->Location = System::Drawing::Point(59, 299);
 			this->button_houseKeepingData->Name = L"button_houseKeepingData";
-			this->button_houseKeepingData->Size = System::Drawing::Size(319, 52);
+			this->button_houseKeepingData->Size = System::Drawing::Size(239, 42);
 			this->button_houseKeepingData->TabIndex = 11;
 			this->button_houseKeepingData->Text = L"Request HouseKeeping Data";
 			this->button_houseKeepingData->UseVisualStyleBackColor = true;
@@ -356,10 +352,9 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			// button_downlinkRequest
 			// 
 			this->button_downlinkRequest->Enabled = false;
-			this->button_downlinkRequest->Location = System::Drawing::Point(319, 452);
-			this->button_downlinkRequest->Margin = System::Windows::Forms::Padding(4);
+			this->button_downlinkRequest->Location = System::Drawing::Point(239, 367);
 			this->button_downlinkRequest->Name = L"button_downlinkRequest";
-			this->button_downlinkRequest->Size = System::Drawing::Size(143, 58);
+			this->button_downlinkRequest->Size = System::Drawing::Size(107, 47);
 			this->button_downlinkRequest->TabIndex = 12;
 			this->button_downlinkRequest->Text = L"Request Downlink File Transfer";
 			this->button_downlinkRequest->UseVisualStyleBackColor = true;
@@ -369,19 +364,17 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			// 
 			this->comboBox_downlinkFileName->Enabled = false;
 			this->comboBox_downlinkFileName->FormattingEnabled = true;
-			this->comboBox_downlinkFileName->Location = System::Drawing::Point(44, 473);
-			this->comboBox_downlinkFileName->Margin = System::Windows::Forms::Padding(4);
+			this->comboBox_downlinkFileName->Location = System::Drawing::Point(33, 384);
 			this->comboBox_downlinkFileName->Name = L"comboBox_downlinkFileName";
-			this->comboBox_downlinkFileName->Size = System::Drawing::Size(265, 24);
+			this->comboBox_downlinkFileName->Size = System::Drawing::Size(200, 21);
 			this->comboBox_downlinkFileName->TabIndex = 13;
 			// 
 			// label_downlinkFileName
 			// 
 			this->label_downlinkFileName->AutoSize = true;
-			this->label_downlinkFileName->Location = System::Drawing::Point(40, 452);
-			this->label_downlinkFileName->Margin = System::Windows::Forms::Padding(4, 0, 4, 0);
+			this->label_downlinkFileName->Location = System::Drawing::Point(30, 367);
 			this->label_downlinkFileName->Name = L"label_downlinkFileName";
-			this->label_downlinkFileName->Size = System::Drawing::Size(197, 17);
+			this->label_downlinkFileName->Size = System::Drawing::Size(150, 13);
 			this->label_downlinkFileName->TabIndex = 14;
 			this->label_downlinkFileName->Text = L"File To Request For Downlink:";
 			this->label_downlinkFileName->DoubleClick += gcnew System::EventHandler(this, &MyForm::label_downlinkFileName_DoubleClick);
@@ -389,20 +382,18 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			// label_uplinkFileName
 			// 
 			this->label_uplinkFileName->AutoSize = true;
-			this->label_uplinkFileName->Location = System::Drawing::Point(40, 529);
-			this->label_uplinkFileName->Margin = System::Windows::Forms::Padding(4, 0, 4, 0);
+			this->label_uplinkFileName->Location = System::Drawing::Point(30, 430);
 			this->label_uplinkFileName->Name = L"label_uplinkFileName";
-			this->label_uplinkFileName->Size = System::Drawing::Size(150, 17);
+			this->label_uplinkFileName->Size = System::Drawing::Size(114, 13);
 			this->label_uplinkFileName->TabIndex = 17;
 			this->label_uplinkFileName->Text = L"File To Attempt Uplink:";
 			// 
 			// button_uplinkRequest
 			// 
 			this->button_uplinkRequest->Enabled = false;
-			this->button_uplinkRequest->Location = System::Drawing::Point(319, 529);
-			this->button_uplinkRequest->Margin = System::Windows::Forms::Padding(4);
+			this->button_uplinkRequest->Location = System::Drawing::Point(239, 430);
 			this->button_uplinkRequest->Name = L"button_uplinkRequest";
-			this->button_uplinkRequest->Size = System::Drawing::Size(143, 82);
+			this->button_uplinkRequest->Size = System::Drawing::Size(107, 67);
 			this->button_uplinkRequest->TabIndex = 15;
 			this->button_uplinkRequest->Text = L"Attempt Uplink File Transfer";
 			this->button_uplinkRequest->UseVisualStyleBackColor = true;
@@ -411,18 +402,20 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			// textBox_uplinkFileName
 			// 
 			this->textBox_uplinkFileName->Enabled = false;
-			this->textBox_uplinkFileName->Location = System::Drawing::Point(44, 549);
-			this->textBox_uplinkFileName->Margin = System::Windows::Forms::Padding(4);
+			this->textBox_uplinkFileName->Location = System::Drawing::Point(33, 446);
 			this->textBox_uplinkFileName->Multiline = true;
 			this->textBox_uplinkFileName->Name = L"textBox_uplinkFileName";
 			this->textBox_uplinkFileName->ScrollBars = System::Windows::Forms::ScrollBars::Vertical;
-			this->textBox_uplinkFileName->Size = System::Drawing::Size(265, 50);
+			this->textBox_uplinkFileName->Size = System::Drawing::Size(200, 41);
 			this->textBox_uplinkFileName->TabIndex = 18;
 			this->textBox_uplinkFileName->Text = L"C:\\Users\\AlvyneZ\\Desktop\\NaSPUoN transfers\\GS\\uplinks\\Icon.ico";
 			// 
 			// groupBox_Initialization
 			// 
-			this->groupBox_Initialization->Controls->Add(this->comboBox_TNCPort);
+			this->groupBox_Initialization->Controls->Add(this->label_TNCPortUplink);
+			this->groupBox_Initialization->Controls->Add(this->label_TNCPortDownlink);
+			this->groupBox_Initialization->Controls->Add(this->comboBox_TNCPortUplink);
+			this->groupBox_Initialization->Controls->Add(this->comboBox_TNCPortDownlink);
 			this->groupBox_Initialization->Controls->Add(this->label_TNCPort);
 			this->groupBox_Initialization->Controls->Add(this->progressBar_PortOpenSatus);
 			this->groupBox_Initialization->Controls->Add(this->button_closePort);
@@ -431,45 +424,40 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			this->groupBox_Initialization->Controls->Add(this->comboBox_Baud);
 			this->groupBox_Initialization->Controls->Add(this->label_COMPort);
 			this->groupBox_Initialization->Controls->Add(this->comboBox_COMPort);
-			this->groupBox_Initialization->Location = System::Drawing::Point(117, 6);
-			this->groupBox_Initialization->Margin = System::Windows::Forms::Padding(4);
+			this->groupBox_Initialization->Location = System::Drawing::Point(88, 5);
 			this->groupBox_Initialization->Name = L"groupBox_Initialization";
-			this->groupBox_Initialization->Padding = System::Windows::Forms::Padding(4);
-			this->groupBox_Initialization->Size = System::Drawing::Size(643, 146);
+			this->groupBox_Initialization->Size = System::Drawing::Size(482, 119);
 			this->groupBox_Initialization->TabIndex = 19;
 			this->groupBox_Initialization->TabStop = false;
 			this->groupBox_Initialization->Text = L"Initialization";
 			// 
-			// comboBox_TNCPort
+			// comboBox_TNCPortDownlink
 			// 
-			this->comboBox_TNCPort->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
-			this->comboBox_TNCPort->FormattingEnabled = true;
-			this->comboBox_TNCPort->Items->AddRange(gcnew cli::array< System::Object^  >(16) {
-				L"0", L"1", L"2", L"3", L"4", L"5", L"6",
-					L"7", L"8", L"9", L"A", L"B", L"C", L"D", L"E", L"F"
+			this->comboBox_TNCPortDownlink->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
+			this->comboBox_TNCPortDownlink->FormattingEnabled = true;
+			this->comboBox_TNCPortDownlink->Items->AddRange(gcnew cli::array< System::Object^  >(16) {
+				L"0", L"1", L"2", L"3", L"4", L"5",
+					L"6", L"7", L"8", L"9", L"A", L"B", L"C", L"D", L"E", L"F"
 			});
-			this->comboBox_TNCPort->Location = System::Drawing::Point(101, 94);
-			this->comboBox_TNCPort->Margin = System::Windows::Forms::Padding(4);
-			this->comboBox_TNCPort->Name = L"comboBox_TNCPort";
-			this->comboBox_TNCPort->Size = System::Drawing::Size(160, 24);
-			this->comboBox_TNCPort->TabIndex = 33;
+			this->comboBox_TNCPortDownlink->Location = System::Drawing::Point(76, 76);
+			this->comboBox_TNCPortDownlink->Name = L"comboBox_TNCPortDownlink";
+			this->comboBox_TNCPortDownlink->Size = System::Drawing::Size(59, 21);
+			this->comboBox_TNCPortDownlink->TabIndex = 33;
 			// 
 			// label_TNCPort
 			// 
 			this->label_TNCPort->AutoSize = true;
-			this->label_TNCPort->Location = System::Drawing::Point(12, 97);
-			this->label_TNCPort->Margin = System::Windows::Forms::Padding(4, 0, 4, 0);
+			this->label_TNCPort->Location = System::Drawing::Point(9, 79);
 			this->label_TNCPort->Name = L"label_TNCPort";
-			this->label_TNCPort->Size = System::Drawing::Size(70, 17);
+			this->label_TNCPort->Size = System::Drawing::Size(54, 13);
 			this->label_TNCPort->TabIndex = 32;
 			this->label_TNCPort->Text = L"TNC Port:";
 			// 
 			// progressBar_PortOpenSatus
 			// 
-			this->progressBar_PortOpenSatus->Location = System::Drawing::Point(435, 60);
-			this->progressBar_PortOpenSatus->Margin = System::Windows::Forms::Padding(4);
+			this->progressBar_PortOpenSatus->Location = System::Drawing::Point(326, 49);
 			this->progressBar_PortOpenSatus->Name = L"progressBar_PortOpenSatus";
-			this->progressBar_PortOpenSatus->Size = System::Drawing::Size(41, 22);
+			this->progressBar_PortOpenSatus->Size = System::Drawing::Size(31, 18);
 			this->progressBar_PortOpenSatus->TabIndex = 6;
 			// 
 			// backgroundWorker_Receiver
@@ -482,10 +470,9 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			// 
 			// progressBar_uplink
 			// 
-			this->progressBar_uplink->Location = System::Drawing::Point(44, 602);
-			this->progressBar_uplink->Margin = System::Windows::Forms::Padding(4);
+			this->progressBar_uplink->Location = System::Drawing::Point(33, 489);
 			this->progressBar_uplink->Name = L"progressBar_uplink";
-			this->progressBar_uplink->Size = System::Drawing::Size(267, 10);
+			this->progressBar_uplink->Size = System::Drawing::Size(200, 8);
 			this->progressBar_uplink->TabIndex = 20;
 			// 
 			// backgroundWorker_Uplink
@@ -499,11 +486,10 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			// textBox_AX25SatCallsign
 			// 
 			this->textBox_AX25SatCallsign->CharacterCasing = System::Windows::Forms::CharacterCasing::Upper;
-			this->textBox_AX25SatCallsign->Location = System::Drawing::Point(975, 37);
-			this->textBox_AX25SatCallsign->Margin = System::Windows::Forms::Padding(4);
+			this->textBox_AX25SatCallsign->Location = System::Drawing::Point(731, 30);
 			this->textBox_AX25SatCallsign->MaxLength = 16;
 			this->textBox_AX25SatCallsign->Name = L"textBox_AX25SatCallsign";
-			this->textBox_AX25SatCallsign->Size = System::Drawing::Size(76, 22);
+			this->textBox_AX25SatCallsign->Size = System::Drawing::Size(58, 20);
 			this->textBox_AX25SatCallsign->TabIndex = 22;
 			this->textBox_AX25SatCallsign->Text = L"N0CAL";
 			this->textBox_AX25SatCallsign->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
@@ -512,10 +498,9 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			// label_AX25Callsign
 			// 
 			this->label_AX25Callsign->AutoSize = true;
-			this->label_AX25Callsign->Location = System::Drawing::Point(859, 41);
-			this->label_AX25Callsign->Margin = System::Windows::Forms::Padding(4, 0, 4, 0);
+			this->label_AX25Callsign->Location = System::Drawing::Point(644, 33);
 			this->label_AX25Callsign->Name = L"label_AX25Callsign";
-			this->label_AX25Callsign->Size = System::Drawing::Size(103, 17);
+			this->label_AX25Callsign->Size = System::Drawing::Size(78, 13);
 			this->label_AX25Callsign->TabIndex = 23;
 			this->label_AX25Callsign->Text = L"AX.25 Callsign:";
 			// 
@@ -525,10 +510,9 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 				static_cast<System::Int32>(static_cast<System::Byte>(128)), static_cast<System::Int32>(static_cast<System::Byte>(128)));
 			this->button_uplinkCancel->Enabled = false;
 			this->button_uplinkCancel->ForeColor = System::Drawing::SystemColors::ControlText;
-			this->button_uplinkCancel->Location = System::Drawing::Point(239, 517);
-			this->button_uplinkCancel->Margin = System::Windows::Forms::Padding(4);
+			this->button_uplinkCancel->Location = System::Drawing::Point(179, 420);
 			this->button_uplinkCancel->Name = L"button_uplinkCancel";
-			this->button_uplinkCancel->Size = System::Drawing::Size(72, 28);
+			this->button_uplinkCancel->Size = System::Drawing::Size(54, 23);
 			this->button_uplinkCancel->TabIndex = 25;
 			this->button_uplinkCancel->Text = L"Cancel";
 			this->button_uplinkCancel->UseVisualStyleBackColor = false;
@@ -538,21 +522,19 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			// label_AX25SSID
 			// 
 			this->label_AX25SSID->AutoSize = true;
-			this->label_AX25SSID->Location = System::Drawing::Point(859, 15);
-			this->label_AX25SSID->Margin = System::Windows::Forms::Padding(4, 0, 4, 0);
+			this->label_AX25SSID->Location = System::Drawing::Point(644, 12);
 			this->label_AX25SSID->Name = L"label_AX25SSID";
-			this->label_AX25SSID->Size = System::Drawing::Size(85, 17);
+			this->label_AX25SSID->Size = System::Drawing::Size(67, 13);
 			this->label_AX25SSID->TabIndex = 27;
 			this->label_AX25SSID->Text = L"AX.25 SSID:";
 			// 
 			// textBox_AX25SatSSID
 			// 
 			this->textBox_AX25SatSSID->CharacterCasing = System::Windows::Forms::CharacterCasing::Upper;
-			this->textBox_AX25SatSSID->Location = System::Drawing::Point(975, 11);
-			this->textBox_AX25SatSSID->Margin = System::Windows::Forms::Padding(4);
+			this->textBox_AX25SatSSID->Location = System::Drawing::Point(731, 9);
 			this->textBox_AX25SatSSID->MaxLength = 4;
 			this->textBox_AX25SatSSID->Name = L"textBox_AX25SatSSID";
-			this->textBox_AX25SatSSID->Size = System::Drawing::Size(76, 22);
+			this->textBox_AX25SatSSID->Size = System::Drawing::Size(58, 20);
 			this->textBox_AX25SatSSID->TabIndex = 26;
 			this->textBox_AX25SatSSID->Text = L"2";
 			this->textBox_AX25SatSSID->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
@@ -560,32 +542,29 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			// 
 			// textBox_DownlinkSaveLocation
 			// 
-			this->textBox_DownlinkSaveLocation->Location = System::Drawing::Point(800, 97);
-			this->textBox_DownlinkSaveLocation->Margin = System::Windows::Forms::Padding(4);
+			this->textBox_DownlinkSaveLocation->Location = System::Drawing::Point(600, 79);
 			this->textBox_DownlinkSaveLocation->Multiline = true;
 			this->textBox_DownlinkSaveLocation->Name = L"textBox_DownlinkSaveLocation";
 			this->textBox_DownlinkSaveLocation->ScrollBars = System::Windows::Forms::ScrollBars::Vertical;
-			this->textBox_DownlinkSaveLocation->Size = System::Drawing::Size(265, 50);
+			this->textBox_DownlinkSaveLocation->Size = System::Drawing::Size(200, 41);
 			this->textBox_DownlinkSaveLocation->TabIndex = 29;
 			this->textBox_DownlinkSaveLocation->Text = L"C:\\Users\\AlvyneZ\\Desktop\\NaSPUoN transfers\\GS\\downlinks";
 			// 
 			// labelDownlinkSaveLocation
 			// 
 			this->labelDownlinkSaveLocation->AutoSize = true;
-			this->labelDownlinkSaveLocation->Location = System::Drawing::Point(796, 78);
-			this->labelDownlinkSaveLocation->Margin = System::Windows::Forms::Padding(4, 0, 4, 0);
+			this->labelDownlinkSaveLocation->Location = System::Drawing::Point(597, 63);
 			this->labelDownlinkSaveLocation->Name = L"labelDownlinkSaveLocation";
-			this->labelDownlinkSaveLocation->Size = System::Drawing::Size(162, 17);
+			this->labelDownlinkSaveLocation->Size = System::Drawing::Size(126, 13);
 			this->labelDownlinkSaveLocation->TabIndex = 28;
 			this->labelDownlinkSaveLocation->Text = L"Downlink Save Location:";
 			// 
 			// button_saveNewConfigFile
 			// 
 			this->button_saveNewConfigFile->Enabled = false;
-			this->button_saveNewConfigFile->Location = System::Drawing::Point(80, 306);
-			this->button_saveNewConfigFile->Margin = System::Windows::Forms::Padding(4);
+			this->button_saveNewConfigFile->Location = System::Drawing::Point(60, 249);
 			this->button_saveNewConfigFile->Name = L"button_saveNewConfigFile";
-			this->button_saveNewConfigFile->Size = System::Drawing::Size(317, 28);
+			this->button_saveNewConfigFile->Size = System::Drawing::Size(238, 23);
 			this->button_saveNewConfigFile->TabIndex = 30;
 			this->button_saveNewConfigFile->Text = L"Save new Config File and Apply";
 			this->button_saveNewConfigFile->UseVisualStyleBackColor = true;
@@ -601,10 +580,9 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			// 
 			// button_about
 			// 
-			this->button_about->Location = System::Drawing::Point(5, 7);
-			this->button_about->Margin = System::Windows::Forms::Padding(4);
+			this->button_about->Location = System::Drawing::Point(4, 6);
 			this->button_about->Name = L"button_about";
-			this->button_about->Size = System::Drawing::Size(68, 28);
+			this->button_about->Size = System::Drawing::Size(51, 23);
 			this->button_about->TabIndex = 31;
 			this->button_about->Text = L"About";
 			this->button_about->UseVisualStyleBackColor = true;
@@ -613,11 +591,10 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			// textBox_AX25GSSSID
 			// 
 			this->textBox_AX25GSSSID->CharacterCasing = System::Windows::Forms::CharacterCasing::Upper;
-			this->textBox_AX25GSSSID->Location = System::Drawing::Point(1060, 11);
-			this->textBox_AX25GSSSID->Margin = System::Windows::Forms::Padding(4);
+			this->textBox_AX25GSSSID->Location = System::Drawing::Point(795, 9);
 			this->textBox_AX25GSSSID->MaxLength = 4;
 			this->textBox_AX25GSSSID->Name = L"textBox_AX25GSSSID";
-			this->textBox_AX25GSSSID->Size = System::Drawing::Size(76, 22);
+			this->textBox_AX25GSSSID->Size = System::Drawing::Size(58, 20);
 			this->textBox_AX25GSSSID->TabIndex = 33;
 			this->textBox_AX25GSSSID->Text = L"1";
 			this->textBox_AX25GSSSID->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
@@ -626,11 +603,10 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			// textBox_AX25GSCallsign
 			// 
 			this->textBox_AX25GSCallsign->CharacterCasing = System::Windows::Forms::CharacterCasing::Upper;
-			this->textBox_AX25GSCallsign->Location = System::Drawing::Point(1060, 37);
-			this->textBox_AX25GSCallsign->Margin = System::Windows::Forms::Padding(4);
+			this->textBox_AX25GSCallsign->Location = System::Drawing::Point(795, 30);
 			this->textBox_AX25GSCallsign->MaxLength = 16;
 			this->textBox_AX25GSCallsign->Name = L"textBox_AX25GSCallsign";
-			this->textBox_AX25GSCallsign->Size = System::Drawing::Size(76, 22);
+			this->textBox_AX25GSCallsign->Size = System::Drawing::Size(58, 20);
 			this->textBox_AX25GSCallsign->TabIndex = 32;
 			this->textBox_AX25GSCallsign->Text = L"N0CAL";
 			this->textBox_AX25GSCallsign->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
@@ -639,28 +615,57 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			// label_AX25Sat
 			// 
 			this->label_AX25Sat->AutoSize = true;
-			this->label_AX25Sat->Location = System::Drawing::Point(993, 65);
-			this->label_AX25Sat->Margin = System::Windows::Forms::Padding(4, 0, 4, 0);
+			this->label_AX25Sat->Location = System::Drawing::Point(745, 53);
 			this->label_AX25Sat->Name = L"label_AX25Sat";
-			this->label_AX25Sat->Size = System::Drawing::Size(58, 17);
+			this->label_AX25Sat->Size = System::Drawing::Size(44, 13);
 			this->label_AX25Sat->TabIndex = 34;
 			this->label_AX25Sat->Text = L"Satellite";
 			// 
 			// label_AX25GS
 			// 
 			this->label_AX25GS->AutoSize = true;
-			this->label_AX25GS->Location = System::Drawing::Point(1108, 65);
-			this->label_AX25GS->Margin = System::Windows::Forms::Padding(4, 0, 4, 0);
+			this->label_AX25GS->Location = System::Drawing::Point(831, 53);
 			this->label_AX25GS->Name = L"label_AX25GS";
-			this->label_AX25GS->Size = System::Drawing::Size(28, 17);
+			this->label_AX25GS->Size = System::Drawing::Size(22, 13);
 			this->label_AX25GS->TabIndex = 35;
 			this->label_AX25GS->Text = L"GS";
 			// 
+			// comboBox_TNCPortUplink
+			// 
+			this->comboBox_TNCPortUplink->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
+			this->comboBox_TNCPortUplink->FormattingEnabled = true;
+			this->comboBox_TNCPortUplink->Items->AddRange(gcnew cli::array< System::Object^  >(16) {
+				L"0", L"1", L"2", L"3", L"4", L"5",
+					L"6", L"7", L"8", L"9", L"A", L"B", L"C", L"D", L"E", L"F"
+			});
+			this->comboBox_TNCPortUplink->Location = System::Drawing::Point(141, 76);
+			this->comboBox_TNCPortUplink->Name = L"comboBox_TNCPortUplink";
+			this->comboBox_TNCPortUplink->Size = System::Drawing::Size(56, 21);
+			this->comboBox_TNCPortUplink->TabIndex = 34;
+			// 
+			// label_TNCPortDownlink
+			// 
+			this->label_TNCPortDownlink->AutoSize = true;
+			this->label_TNCPortDownlink->Location = System::Drawing::Point(84, 100);
+			this->label_TNCPortDownlink->Name = L"label_TNCPortDownlink";
+			this->label_TNCPortDownlink->Size = System::Drawing::Size(51, 13);
+			this->label_TNCPortDownlink->TabIndex = 35;
+			this->label_TNCPortDownlink->Text = L"Downlink";
+			// 
+			// label_TNCPortUplink
+			// 
+			this->label_TNCPortUplink->AutoSize = true;
+			this->label_TNCPortUplink->Location = System::Drawing::Point(160, 100);
+			this->label_TNCPortUplink->Name = L"label_TNCPortUplink";
+			this->label_TNCPortUplink->Size = System::Drawing::Size(37, 13);
+			this->label_TNCPortUplink->TabIndex = 36;
+			this->label_TNCPortUplink->Text = L"Uplink";
+			// 
 			// MyForm
 			// 
-			this->AutoScaleDimensions = System::Drawing::SizeF(8, 16);
+			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-			this->ClientSize = System::Drawing::Size(1153, 635);
+			this->ClientSize = System::Drawing::Size(865, 516);
 			this->Controls->Add(this->label_AX25GS);
 			this->Controls->Add(this->label_AX25Sat);
 			this->Controls->Add(this->textBox_AX25GSSSID);
@@ -689,7 +694,6 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 			this->Controls->Add(this->button_imagesTaken);
 			this->Controls->Add(this->richTextBox_output);
 			this->Icon = (cli::safe_cast<System::Drawing::Icon^>(resources->GetObject(L"$this.Icon")));
-			this->Margin = System::Windows::Forms::Padding(4);
 			this->Name = L"MyForm";
 			this->Text = L"NaSPUoN Ground Station Software";
 			this->groupBox_Initialization->ResumeLayout(false);
@@ -725,7 +729,8 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 				this->button_initPort->Enabled = !enabled;
 				this->comboBox_COMPort->Enabled = !enabled;
 				this->comboBox_Baud->Enabled = !enabled;
-				this->comboBox_TNCPort->Enabled = !enabled;
+				this->comboBox_TNCPortDownlink->Enabled = !enabled;
+				this->comboBox_TNCPortUplink->Enabled = !enabled;
 				this->textBox_AX25SatSSID->Enabled = !enabled;
 				this->textBox_AX25SatCallsign->Enabled = !enabled;
 				this->textBox_AX25GSSSID->Enabled = !enabled;
@@ -754,7 +759,7 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 
 			//Init Port Button
 			private: System::Void button_initPort_Click(System::Object^  sender, System::EventArgs^  e) {
-				if ((this->comboBox_COMPort->Text == String::Empty) || (this->comboBox_Baud->Text == String::Empty) || (this->comboBox_TNCPort->Text == String::Empty)) {
+				if ((this->comboBox_COMPort->Text == String::Empty) || (this->comboBox_Baud->Text == String::Empty) || (this->comboBox_TNCPortDownlink->Text == String::Empty) || (this->comboBox_TNCPortUplink->Text == String::Empty)) {
 					logErr("Please select a COM Port, TNC Port and Baud Rate.");
 					return;
 				}
@@ -811,10 +816,15 @@ private: System::Windows::Forms::Label^  label_AX25GS;
 					}
 
 					//Getting AX.25 KISS TNC port
-					this->TNCPort = this->comboBox_TNCPort->Text[0] - '0';
-					if (this->TNCPort > 10)
-						this->TNCPort += (('0' + 10) - 'A');
-					this->TNCPort <<= 4; //Port number occupies high order nibble
+					this->TNCPortDownlink = this->comboBox_TNCPortDownlink->Text[0] - '0';
+					if (this->TNCPortDownlink > 10)
+						this->TNCPortDownlink += (('0' + 10) - 'A');
+					this->TNCPortDownlink <<= 4; //Port number occupies high order nibble
+
+					this->TNCPortUplink = this->comboBox_TNCPortUplink->Text[0] - '0';
+					if (this->TNCPortUplink > 10)
+						this->TNCPortUplink += (('0' + 10) - 'A');
+					this->TNCPortUplink <<= 4; //Port number occupies high order nibble
 
 					//Getting satellite's AX.25 SSID and Callsign
 					this->satelliteSSID = this->textBox_AX25SatSSID->Text[0] - '0';

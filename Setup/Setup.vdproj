@@ -15,7 +15,19 @@
     {
         "Entry"
         {
+        "MsmKey" = "8:_05B15C1463624FCA9F3F3FEB8760D7D6"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_B9A2EAADA70A49698A8DEDDEA03ABCB6"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_DBFB544060774731A2D849FE414DAAC3"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -134,12 +146,52 @@
         }
         "File"
         {
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_05B15C1463624FCA9F3F3FEB8760D7D6"
+            {
+            "SourcePath" = "8:..\\..\\..\\Software\\VC_redist.x86.exe"
+            "TargetName" = "8:VC_redist.x86.exe"
+            "Tag" = "8:"
+            "Folder" = "8:_88387F3BBDB34D66B73086A3F0F4ABEF"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B9A2EAADA70A49698A8DEDDEA03ABCB6"
             {
             "SourcePath" = "8:..\\..\\SatUI AX25\\SatUI AX25\\Icon.ico"
             "TargetName" = "8:Icon.ico"
             "Tag" = "8:"
             "Folder" = "8:_B6230548888B4EC4B7F4F9B4D0DFDAE7"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DBFB544060774731A2D849FE414DAAC3"
+            {
+            "SourcePath" = "8:..\\..\\..\\Software\\DotNet 4.6.1 - NDP461-KB3102436-x86-x64-AllOS-ENU.exe"
+            "TargetName" = "8:DotNet 4.6.1 - NDP461-KB3102436-x86-x64-AllOS-ENU.exe"
+            "Tag" = "8:"
+            "Folder" = "8:_88387F3BBDB34D66B73086A3F0F4ABEF"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -255,6 +307,17 @@
                                     }
                                 }
                             }
+                            "{9EF0B969-E518-4E46-987F-47570745A589}:_88387F3BBDB34D66B73086A3F0F4ABEF"
+                            {
+                            "Name" = "8:Redist"
+                            "AlwaysCreate" = "11:FALSE"
+                            "Condition" = "8:"
+                            "Transitive" = "11:FALSE"
+                            "Property" = "8:_53AEB5489B86432C8F69E50897DC979D"
+                                "Folders"
+                                {
+                                }
+                            }
                         }
                     }
                 }
@@ -299,7 +362,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:NaPUoN GSUI"
         "ProductCode" = "8:{023B782B-88E2-4F9D-B5B4-600B0337CBA9}"
-        "PackageCode" = "8:{F39804BD-13AA-4A71-80C5-DA9B18AC674E}"
+        "PackageCode" = "8:{5C2C9F19-2A48-4469-8B09-A4808597C925}"
         "UpgradeCode" = "8:{B7C7A3D5-6A9B-47EA-9E67-8F6407246815}"
         "AspNetVersion" = "8:2.0.50727.0"
         "RestartWWWService" = "11:FALSE"
